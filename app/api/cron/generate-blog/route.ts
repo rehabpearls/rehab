@@ -12,22 +12,22 @@ type NewsItem = {
   source: string
 }
 
-type GeneratedArticle = {
+type AiArticle = {
   title: string
-  excerpt: string
   content: string
-  meta_title: string
   meta_description: string
-  keywords: string[]
-  faq?: { question: string; answer: string }[]
-  category?: string
+  focus_keyword: string
+  excerpt: string
+  keywords?: string[]
 }
 
 function getSupabaseAdmin() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   const key = process.env["SUPABASE_SERVICE_ROLE_KEY"]
 
-  if (!url || !key) throw new Error("Missing Supabase admin env variables")
+  if (!url || !key) {
+    throw new Error("Missing Supabase admin env variables")
+  }
 
   return createClient(url, key)
 }
@@ -46,6 +46,9 @@ function slugify(text: string) {
 function stripHtml(input: string) {
   return (input || "")
     .replace(/<!\[CDATA\[(.*?)\]\]>/g, "$1")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
@@ -54,28 +57,47 @@ function stripHtml(input: string) {
     .trim()
 }
 
-function safeJsonParse(text: string): GeneratedArticle | null {
-  try {
-    const cleaned = text
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim()
+function cleanAiJson(raw: string) {
+  return raw
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim()
+}
 
+function safeParseAiArticle(raw: string): AiArticle | null {
+  try {
+    const cleaned = cleanAiJson(raw)
     const start = cleaned.indexOf("{")
     const end = cleaned.lastIndexOf("}")
 
     if (start === -1 || end === -1) return null
 
-    return JSON.parse(cleaned.slice(start, end + 1))
+    const parsed = JSON.parse(cleaned.slice(start, end + 1))
+
+    if (!parsed?.title || !parsed?.content) return null
+
+    return parsed
   } catch {
     return null
   }
 }
 
+function appendInternalLinksBlock(content: string) {
+  if (content.includes("rehabpearls-internal-links")) return content
+
+  return `${content}
+
+<div class="rehabpearls-internal-links" style="margin-top:32px;padding:22px;border:1px solid #243041;border-radius:16px;background:#12192B;">
+  <h2>Continue Learning with RehabPearls</h2>
+  <p>Build stronger clinical reasoning with our <a href="/qbank">rehab question bank</a>, explore expert <a href="/guides">rehab study guides</a>, review <a href="/cases/neuro">neuro rehab cases</a>, and practice with <a href="/cases/orthopedic">orthopedic rehabilitation cases</a>.</p>
+</div>`
+}
+
 async function fetchPubMedArticles(): Promise<NewsItem[]> {
   try {
     const query = encodeURIComponent(
-      'rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR neurorehabilitation OR "stroke rehabilitation" OR "pediatric rehabilitation"'
+      'rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR neurorehabilitation OR "stroke rehabilitation" OR "orthopedic rehabilitation" OR "pediatric rehabilitation"'
     )
 
     const searchUrl =
@@ -155,105 +177,108 @@ function fallbackTopics(): NewsItem[] {
   ]
 }
 
-function buildInternalLinksBlock() {
-  return `
-## Continue Learning with RehabPearls
+async function generateArticle(news: NewsItem): Promise<AiArticle | null> {
+  const apiKey = process.env["OPENAI_API_KEY"]
 
-Explore related rehab learning resources:
-
-- Practice board-style questions in the [RehabPearls QBank](/qbank)
-- Read more clinical learning resources in the [Rehab Guides](/guides)
-- Review neurological rehabilitation cases in [Neuro Rehab Cases](/cases/neuro)
-- Study orthopedic patient scenarios in [Orthopedic Rehab Cases](/cases/orthopedic)
-- Browse pediatric therapy examples in [Pediatric Rehab Cases](/cases/pediatrics)
-`
-}
-
-async function generateArticle(news: NewsItem): Promise<GeneratedArticle | null> {
-  const apiKey = process.env["GEMINI_API_KEY"]
-  if (!apiKey) throw new Error("Missing GEMINI_API_KEY")
+  if (!apiKey) {
+    throw new Error("Missing OPENAI_API_KEY")
+  }
 
   const prompt = `
-You are a senior medical education editor for RehabPearls.com.
+Rewrite this medical / rehabilitation source into a unique, SEO-optimized educational article for RehabPearls.
 
-Write an ORIGINAL, high-quality, SEO-focused educational article for:
+Audience:
 - physical therapy students
 - occupational therapy students
 - speech-language pathology students
-- rehabilitation clinicians
+- rehab clinicians
+- board exam prep users
 
-Use the source/topic only as background. Do not copy wording. Do not present this as medical advice.
+Requirements:
+- Preserve factual accuracy
+- Do NOT copy sentences from the source
+- Do NOT claim medical advice
+- Make it original, readable, and professional
+- Focus naturally on: physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab
+- Add a short intro
+- Add 3-5 H2 headings
+- Add practical rehab takeaways
+- Add exam relevance / clinical reasoning angle
+- Add short FAQ section
+- Return clean HTML only using: <p>, <h2>, <h3>, <strong>, <em>, <a>, <ul>, <li>
+- Do not include scripts, markdown, code fences, citations in brackets, or raw source copied text
+- Do not say "this article was rewritten"
 
-Required style:
-- Professional, human, non-generic writing
-- Strong clinical education value
-- Practical rehab implications
-- Board-style exam relevance
-- Clear headings
-- FAQ section
-- Natural internal linking opportunities
-- Avoid AI clichés like "delve", "unlock", "in today's fast-paced world"
-
-Target SEO keywords:
-physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, rehab education, board exam prep, evidence-based rehab, neurorehabilitation, orthopedic rehabilitation, pediatric therapy
-
-Source/topic:
-Title: ${news.title}
-Description: ${news.description}
-URL: ${news.link}
-Source: ${news.source}
-
-Return VALID JSON ONLY with this shape:
+Return ONLY valid JSON in this exact format:
 {
-  "title": "SEO optimized title",
-  "excerpt": "Short compelling excerpt, 150-180 characters",
-  "content": "Markdown article with H2 headings, bullet points, practical takeaways, and FAQ section",
-  "meta_title": "SEO title under 60 characters",
-  "meta_description": "SEO meta description under 155 characters",
-  "keywords": ["keyword 1", "keyword 2"],
-  "category": "neuro-rehab | orthopedic-rehab | pediatric-therapy | exam-prep | clinical-reasoning",
-  "faq": [
-    {"question": "Question?", "answer": "Answer."}
-  ]
+  "title": "SEO title here",
+  "content": "<p>Intro...</p><h2>...</h2><p>...</p>",
+  "meta_description": "155-160 character SEO meta description",
+  "focus_keyword": "rehabilitation",
+  "excerpt": "Short excerpt for blog archive",
+  "keywords": ["physical therapy", "rehabilitation"]
 }
+
+Source title:
+${news.title}
+
+Source description:
+${news.description}
+
+Source URL:
+${news.link}
+
+Source name:
+${news.source}
 `
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-  temperature: 0.45,
-  topP: 0.85,
-  maxOutputTokens: 8192,
-  responseMimeType: "application/json",
-},
-      }),
-    }
-  )
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1-mini",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.4,
+      response_format: {
+        type: "json_object",
+      },
+    }),
+  })
+
+  const rawBody = await response.text()
 
   if (!response.ok) {
-    const errorText = await response.text()
-    console.error("GEMINI ERROR:", response.status, errorText)
+    console.error("OPENAI ERROR:", response.status, rawBody.slice(0, 1000))
     return null
   }
 
-  const data = await response.json()
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ""
-  const parsed = safeJsonParse(text)
+  const body = JSON.parse(rawBody)
+  const aiText = body?.choices?.[0]?.message?.content
 
-  if (!parsed?.title || !parsed?.content) {
-    console.error("GEMINI INVALID JSON:", text.slice(0, 500))
+  if (!aiText) {
+    console.error("OPENAI EMPTY RESPONSE:", rawBody.slice(0, 1000))
     return null
   }
 
-  parsed.content = `${parsed.content}\n\n${buildInternalLinksBlock()}`
-  parsed.keywords = Array.isArray(parsed.keywords) ? parsed.keywords : []
+  const article = safeParseAiArticle(aiText)
 
-  return parsed
+  if (!article) {
+    console.error("OPENAI JSON PARSE FAILED:", aiText.slice(0, 1000))
+    return null
+  }
+
+  article.content = appendInternalLinksBlock(article.content)
+  article.keywords = Array.isArray(article.keywords) ? article.keywords : []
+
+  return article
 }
 
 export async function GET(req: NextRequest) {
@@ -268,6 +293,7 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = getSupabaseAdmin()
+
     const sourceDebug: any[] = []
 
     let newsItems = await fetchPubMedArticles()
@@ -299,7 +325,10 @@ export async function GET(req: NextRequest) {
       const article = await generateArticle(news)
 
       if (!article?.title || !article?.content) {
-        skipped.push({ title: news.title, reason: "AI generation failed" })
+        skipped.push({
+          title: news.title,
+          reason: "AI generation failed",
+        })
         continue
       }
 
@@ -313,7 +342,10 @@ export async function GET(req: NextRequest) {
         .maybeSingle()
 
       if (existing) {
-        skipped.push({ title: article.title, reason: "already exists" })
+        skipped.push({
+          title: article.title,
+          reason: "already exists",
+        })
         continue
       }
 
@@ -321,13 +353,13 @@ export async function GET(req: NextRequest) {
         .from("blog_posts")
         .insert([
           {
-            title: article.title,
+            title: stripHtml(article.title),
             slug,
-            excerpt: article.excerpt,
+            excerpt: stripHtml(article.excerpt || ""),
             content: article.content,
-            meta_title: article.meta_title,
-            meta_description: article.meta_description,
-            keywords: article.keywords,
+            meta_title: stripHtml(article.title),
+            meta_description: stripHtml(article.meta_description || ""),
+            keywords: article.keywords || [],
             source_urls: [news.link],
             status: "published",
             published_at: new Date().toISOString(),
