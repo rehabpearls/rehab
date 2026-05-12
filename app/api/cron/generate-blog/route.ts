@@ -277,11 +277,14 @@ export async function GET(req: NextRequest) {
       results.push(data)
     }
 
-    return NextResponse.json({
-      success: true,
-      generated: results.length,
-      posts: results,
-    })
+   return NextResponse.json({
+  success: true,
+  fetched: allNews.length,
+  unique: uniqueNews.length,
+  generated: results.length,
+  sampleNews: uniqueNews.slice(0, 3),
+  posts: results,
+})
   } catch (e: any) {
     console.error(e)
 
