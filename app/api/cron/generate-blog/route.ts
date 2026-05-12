@@ -97,7 +97,40 @@ async function fetchRSS(url: string) {
     return []
   }
 }
+async function fetchGdeltNews() {
+  try {
+    const query = encodeURIComponent(
+      '(rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR physiotherapy OR "stroke recovery" OR "clinical rehabilitation")'
+    )
 
+    const url =
+      `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=ArtList&format=json&maxrecords=10&sort=HybridRel`
+
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 RehabPearlsBot/1.0",
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    })
+
+    if (!res.ok) {
+      console.error("GDELT HTTP ERROR:", res.status)
+      return []
+    }
+
+    const data = await res.json()
+
+    return (data.articles || []).map((a: any) => ({
+      title: a.title || "",
+      description: a.seendate ? `Published ${a.seendate}. Source: ${a.sourceCountry || "medical news"}.` : "",
+      link: a.url || "",
+    })).filter((item: any) => item.title && item.link)
+  } catch (e) {
+    console.error("GDELT ERROR:", e)
+    return []
+  }
+}
 // ─────────────────────────────────────────────────────────────
 // GEMINI GENERATION
 // ─────────────────────────────────────────────────────────────
@@ -226,18 +259,33 @@ export async function GET(req: NextRequest) {
     }
 
     // FETCH NEWS
-    let allNews: any[] = []
+let allNews: any[] = []
 const sourceDebug: any[] = []
-    for (const source of RSS_SOURCES) {
+
+for (const source of RSS_SOURCES) {
   const items = await fetchRSS(source)
 
   sourceDebug.push({
     source,
+    type: "rss",
     count: items.length,
     sample: items[0] || null,
   })
 
   allNews.push(...items)
+}
+
+if (allNews.length === 0) {
+  const gdeltItems = await fetchGdeltNews()
+
+  sourceDebug.push({
+    source: "GDELT",
+    type: "gdelt",
+    count: gdeltItems.length,
+    sample: gdeltItems[0] || null,
+  })
+
+  allNews.push(...gdeltItems)
 }
 
     // REMOVE DUPLICATES
