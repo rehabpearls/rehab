@@ -1,0 +1,288 @@
+"use client"
+
+import Link from "next/link"
+import { useEffect, useState, useRef } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { createBrowserClient } from "@supabase/ssr"
+
+const supabase = createBrowserClient(
+  process.env["NEXT_PUBLIC_SUPABASE_URL"]!,
+  process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"]!
+)
+
+export default function Header() {
+  const [user,      setUser]      = useState<any>(null)
+  const [profile,   setProfile]   = useState<any>(null)
+  const [scrolled,  setScrolled]  = useState(false)
+  const [menuOpen,  setMenuOpen]  = useState(false)
+  const [dropOpen,  setDropOpen]  = useState(false)
+  const pathname = usePathname()
+  const router   = useRouter()
+  const dropRef  = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        const { data } = await supabase.from("profiles")
+          .select("full_name, role, profession").eq("id", session.user.id).single()
+        setProfile(data)
+      }
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_e, session) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        const { data } = await supabase.from("profiles")
+          .select("full_name, role, profession").eq("id", session.user.id).single()
+        setProfile(data)
+      } else {
+        setProfile(null)
+      }
+    })
+
+    const onScroll = () => setScrolled(window.scrollY > 12)
+    window.addEventListener("scroll", onScroll, { passive: true })
+
+    // Close dropdown on outside click
+    const onClickOut = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setDropOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", onClickOut)
+
+    return () => {
+      listener.subscription.unsubscribe()
+      window.removeEventListener("scroll", onScroll)
+      document.removeEventListener("mousedown", onClickOut)
+    }
+  }, [])
+
+  const navLinks = [
+    { href: "/qbank",   label: "QBank"         },
+    { href: "/cases",   label: "Clinical Cases" },
+    { href: "/pricing", label: "Pricing"        },
+    { href: "/about",   label: "About"          },
+  ]
+
+  const isActive = (href: string) => pathname.startsWith(href)
+  const initial  = profile?.full_name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?"
+  const firstName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "You"
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    setDropOpen(false)
+    router.push("/")
+  }
+
+  return (
+    <>
+      <style>{`
+        @keyframes hdr-in  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes mob-in  { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes drop-in { from{opacity:0;transform:translateY(6px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+        .nav-link::after {
+          content:''; position:absolute; bottom:-2px; left:0; width:0; height:1.5px;
+          background:#4f46e5; transition:width .22s ease; border-radius:2px;
+        }
+        .nav-link:hover::after, .nav-link.active::after { width:100%; }
+        .drop-item { display:flex; align-items:center; gap:10; padding:9px 14px; border-radius:9px;
+          font-size:14px; font-weight:500; color:#374151; cursor:pointer;
+          border:none; background:none; width:100%; text-align:left; text-decoration:none;
+          transition:background .12s; }
+        .drop-item:hover { background:#f3f4f6; }
+        .drop-item.danger { color:#ef4444; }
+        .drop-item.danger:hover { background:#fff1f2; }
+      `}</style>
+
+      <header style={{
+        position:"sticky", top:0, zIndex:50,
+        background: scrolled ? "rgba(255,255,255,.93)" : "#fff",
+        borderBottom: scrolled ? "1px solid rgba(0,0,0,.07)" : "1px solid #f0f0f0",
+        backdropFilter: scrolled ? "blur(14px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(14px)" : "none",
+        boxShadow: scrolled ? "0 1px 24px rgba(0,0,0,.06)" : "none",
+        transition:"all .25s ease",
+        animation:"hdr-in .35s ease both",
+        fontFamily:"var(--font-sans),system-ui,sans-serif",
+      }}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",gap:24}}>
+
+          {/* LOGO */}
+          <Link href="/" style={{textDecoration:"none",display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+            <div style={{width:34,height:34,borderRadius:10,background:"linear-gradient(135deg,#4f46e5,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,color:"#fff",boxShadow:"0 2px 8px rgba(79,70,229,.35)"}}>R</div>
+            <div>
+              <p style={{fontSize:16,fontWeight:800,color:"#0f0f1a",letterSpacing:"-0.02em",lineHeight:1.1}}>RehabPearls</p>
+              <p style={{fontSize:10,color:"#9ca3af",fontWeight:500,letterSpacing:"0.04em",lineHeight:1}}>EXAM PREP</p>
+            </div>
+          </Link>
+
+          {/* NAV */}
+          <nav style={{display:"flex",alignItems:"center",gap:2,flex:1,justifyContent:"center"}}>
+            {navLinks.map(({href,label})=>(
+              <Link key={href} href={href}
+                className={`nav-link${isActive(href)?" active":""}`}
+                style={{position:"relative",padding:"6px 14px",fontSize:14,fontWeight:isActive(href)?600:500,color:isActive(href)?"#4f46e5":"#374151",textDecoration:"none",borderRadius:8,transition:"color .15s"}}>
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* RIGHT */}
+          <div style={{display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+            {user ? (
+              /* ── AVATAR DROPDOWN ── */
+              <div ref={dropRef} style={{position:"relative"}}>
+                <button
+                  onClick={()=>setDropOpen(o=>!o)}
+                  style={{
+                    display:"flex",alignItems:"center",gap:8,
+                    padding:"5px 12px 5px 6px",
+                    background: dropOpen ? "#f3f4f6" : "#fff",
+                    border:"1.5px solid #e5e7eb",
+                    borderRadius:40,cursor:"pointer",
+                    transition:"all .15s",
+                    boxShadow: dropOpen ? "0 0 0 3px rgba(79,70,229,.12)" : "none",
+                  }}
+                >
+                  {/* Avatar */}
+                  <div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#4f46e5,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,fontWeight:800,flexShrink:0}}>
+                    {initial}
+                  </div>
+                  <span style={{fontSize:13.5,fontWeight:600,color:"#111827"}}>{firstName}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    style={{transform:dropOpen?"rotate(180deg)":"rotate(0deg)",transition:"transform .2s"}}>
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </button>
+
+                {/* Dropdown */}
+                {dropOpen && (
+                  <div style={{
+                    position:"absolute",top:"calc(100% + 8px)",right:0,
+                    width:230,background:"#fff",
+                    border:"1px solid #e5e7eb",borderRadius:14,
+                    boxShadow:"0 8px 32px rgba(0,0,0,.12)",
+                    padding:"8px",zIndex:100,
+                    animation:"drop-in .15s ease",
+                  }}>
+                    {/* User info */}
+                    <div style={{padding:"10px 14px 12px",borderBottom:"1px solid #f3f4f6",marginBottom:6}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10}}>
+                        <div style={{width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg,#4f46e5,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:14,fontWeight:800,flexShrink:0}}>
+                          {initial}
+                        </div>
+                        <div style={{minWidth:0}}>
+                          <p style={{fontSize:13.5,fontWeight:700,color:"#111827",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{profile?.full_name||"User"}</p>
+                          <p style={{fontSize:11.5,color:"#9ca3af",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginTop:1}}>{user.email}</p>
+                        </div>
+                      </div>
+                      {profile?.profession && (
+                        <p style={{fontSize:11.5,color:"#6b7280",marginTop:8,padding:"4px 8px",background:"#f9fafb",borderRadius:6}}>{profile.profession}</p>
+                      )}
+                    </div>
+
+                    {/* Links */}
+                    <Link href="/dashboard" className="drop-item" onClick={()=>setDropOpen(false)}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                      Dashboard
+                    </Link>
+                    <Link href="/qbank" className="drop-item" onClick={()=>setDropOpen(false)}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                      QBank
+                    </Link>
+                    {profile?.role === "admin" && (
+                      <Link href="/admin" className="drop-item" onClick={()=>setDropOpen(false)}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Admin Panel
+                      </Link>
+                    )}
+                    <Link href="/pricing" className="drop-item" onClick={()=>setDropOpen(false)}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      Upgrade Plan
+                    </Link>
+
+                    <div style={{height:1,background:"#f3f4f6",margin:"6px 0"}}/>
+
+                    <button className="drop-item danger" onClick={handleLogout}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/login" style={{fontSize:14,fontWeight:500,color:"#374151",textDecoration:"none",padding:"7px 14px",borderRadius:8,transition:"background .15s"}}
+                  onMouseEnter={e=>(e.currentTarget.style.background="#f3f4f6")}
+                  onMouseLeave={e=>(e.currentTarget.style.background="transparent")}>
+                  Log in
+                </Link>
+                <Link href="/register" style={{fontSize:14,fontWeight:600,color:"#fff",textDecoration:"none",padding:"8px 18px",borderRadius:9,background:"linear-gradient(135deg,#4f46e5,#7c3aed)",boxShadow:"0 2px 10px rgba(79,70,229,.3)",transition:"all .15s",whiteSpace:"nowrap"}}
+                  onMouseEnter={e=>{(e.currentTarget as HTMLAnchorElement).style.boxShadow="0 4px 18px rgba(79,70,229,.45)";(e.currentTarget as HTMLAnchorElement).style.transform="translateY(-1px)"}}
+                  onMouseLeave={e=>{(e.currentTarget as HTMLAnchorElement).style.boxShadow="0 2px 10px rgba(79,70,229,.3)";(e.currentTarget as HTMLAnchorElement).style.transform="translateY(0)"}}>
+                  Start Free Trial
+                </Link>
+              </>
+            )}
+
+            {/* Mobile menu button */}
+            <button onClick={()=>setMenuOpen(o=>!o)}
+              style={{display:"none",background:"none",border:"none",cursor:"pointer",padding:6,color:"#374151"}}
+              className="mob-menu-btn" aria-label="Menu">
+              {menuOpen
+                ? <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                : <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        {/* MOBILE MENU */}
+        {menuOpen && (
+          <div style={{borderTop:"1px solid #f0f0f0",padding:"12px 24px 20px",background:"#fff",animation:"mob-in .2s ease"}}>
+            {navLinks.map(({href,label})=>(
+              <Link key={href} href={href} onClick={()=>setMenuOpen(false)}
+                style={{display:"block",padding:"11px 0",fontSize:15,fontWeight:500,color:isActive(href)?"#4f46e5":"#374151",textDecoration:"none",borderBottom:"1px solid #f9f9f9"}}>
+                {label}
+              </Link>
+            ))}
+            <div style={{marginTop:16,display:"flex",gap:10}}>
+              {user ? (
+                <>
+                  <Link href="/dashboard" onClick={()=>setMenuOpen(false)}
+                    style={{flex:1,textAlign:"center",padding:"10px",background:"#f3f4f6",borderRadius:9,fontSize:14,fontWeight:600,color:"#374151",textDecoration:"none"}}>
+                    Dashboard
+                  </Link>
+                  <button onClick={handleLogout}
+                    style={{flex:1,padding:"10px",background:"#fff1f2",border:"1px solid #fecaca",borderRadius:9,fontSize:14,fontWeight:600,color:"#ef4444",cursor:"pointer"}}>
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" onClick={()=>setMenuOpen(false)}
+                    style={{flex:1,textAlign:"center",padding:"10px",background:"#f3f4f6",borderRadius:9,fontSize:14,fontWeight:600,color:"#374151",textDecoration:"none"}}>
+                    Log in
+                  </Link>
+                  <Link href="/register" onClick={()=>setMenuOpen(false)}
+                    style={{flex:1,textAlign:"center",padding:"10px",background:"linear-gradient(135deg,#4f46e5,#7c3aed)",borderRadius:9,fontSize:14,fontWeight:600,color:"#fff",textDecoration:"none"}}>
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      <style>{`
+        @media (max-width: 768px) {
+          nav { display: none !important; }
+          .mob-menu-btn { display: flex !important; }
+        }
+      `}</style>
+    </>
+  )
+}
