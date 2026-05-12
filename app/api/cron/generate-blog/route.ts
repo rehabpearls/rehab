@@ -227,11 +227,18 @@ export async function GET(req: NextRequest) {
 
     // FETCH NEWS
     let allNews: any[] = []
-
+const sourceDebug: any[] = []
     for (const source of RSS_SOURCES) {
-      const items = await fetchRSS(source)
-      allNews.push(...items)
-    }
+  const items = await fetchRSS(source)
+
+  sourceDebug.push({
+    source,
+    count: items.length,
+    sample: items[0] || null,
+  })
+
+  allNews.push(...items)
+}
 
     // REMOVE DUPLICATES
     const uniqueNews = Array.from(
@@ -293,6 +300,7 @@ export async function GET(req: NextRequest) {
   fetched: allNews.length,
   unique: uniqueNews.length,
   generated: results.length,
+  sourceDebug,
   sampleNews: uniqueNews.slice(0, 3),
   posts: results,
 })
