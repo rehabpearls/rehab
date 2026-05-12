@@ -25,9 +25,10 @@ const GEMINI_API_KEY = process.env["GEMINI_API_KEY"]!
 // ─────────────────────────────────────────────────────────────
 
 const RSS_SOURCES = [
-  "https://www.medicalnewstoday.com/rss",
-  "https://www.news-medical.net/tag/feed/Physical-Therapy.xml",
-  "https://www.news-medical.net/tag/feed/Rehabilitation.xml",
+  "https://www.nih.gov/news-events/news-releases/feed",
+  "https://medlineplus.gov/feeds/news_en.xml",
+  "https://www.cdc.gov/media/rss.htm",
+  "https://www.news-medical.net/rss/newsfeeds.aspx",
 ]
 
 // ─────────────────────────────────────────────────────────────
