@@ -2,6 +2,7 @@
 import type { Metadata } from "next"
 import { DM_Sans, DM_Mono } from "next/font/google"
 import Script from "next/script"
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import ConditionalShell from "@/components/ConditionalShell"
 
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="scroll-smooth">
       <body className={`${dmSans.variable} ${dmMono.variable} antialiased`}>
         <ConditionalShell>{children}</ConditionalShell>
+        <Analytics />
 
         {/* Structured Data */}
         <Script
