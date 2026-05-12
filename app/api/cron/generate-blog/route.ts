@@ -226,10 +226,11 @@ Return VALID JSON ONLY with this shape:
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.72,
-          topP: 0.9,
-          maxOutputTokens: 8192,
-        },
+  temperature: 0.45,
+  topP: 0.85,
+  maxOutputTokens: 8192,
+  responseMimeType: "application/json",
+},
       }),
     }
   )
