@@ -1,309 +1,310 @@
-// app/api/cron/generate-blog/route.ts
-
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-// ─────────────────────────────────────────────────────────────
-// ENV
-// ─────────────────────────────────────────────────────────────
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
+export const maxDuration = 60
+
+type NewsItem = {
+  title: string
+  description: string
+  link: string
+  source: string
+}
+
+type GeneratedArticle = {
+  title: string
+  excerpt: string
+  content: string
+  meta_title: string
+  meta_description: string
+  keywords: string[]
+  faq?: { question: string; answer: string }[]
+  category?: string
+}
 
 function getSupabaseAdmin() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   const key = process.env["SUPABASE_SERVICE_ROLE_KEY"]
 
-  if (!url || !key) {
-    throw new Error("Missing Supabase admin env variables")
-  }
+  if (!url || !key) throw new Error("Missing Supabase admin env variables")
 
   return createClient(url, key)
 }
 
-const GEMINI_API_KEY = process.env["GEMINI_API_KEY"]!
-
-// ─────────────────────────────────────────────────────────────
-// RSS SOURCES
-// ─────────────────────────────────────────────────────────────
-
-const RSS_SOURCES = [
-  "https://www.cdc.gov/media/rss.xml",
-  "https://medlineplus.gov/feeds/news_en.xml",
-  "https://www.sciencedaily.com/rss/health_medicine/rehabilitation.xml",
-  "https://medicalxpress.com/rss-feed/medicine-health-news/",
-]
-// ─────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────
-
 function slugify(text: string) {
   return text
     .toLowerCase()
+    .replace(/&/g, "and")
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 90)
+}
+
+function stripHtml(input: string) {
+  return (input || "")
+    .replace(/<!\[CDATA\[(.*?)\]\]>/g, "$1")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
     .trim()
 }
 
-function stripHtml(html: string) {
-  return html.replace(/<[^>]*>/g, "").trim()
-}
-
-async function fetchRSS(url: string) {
+function safeJsonParse(text: string): GeneratedArticle | null {
   try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 RehabPearlsBot/1.0",
-        Accept: "application/rss+xml, application/xml, text/xml, */*",
-      },
-      cache: "no-store",
-    })
+    const cleaned = text
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim()
 
-    if (!res.ok) {
-      console.error("RSS HTTP ERROR:", url, res.status)
-      return []
-    }
+    const start = cleaned.indexOf("{")
+    const end = cleaned.lastIndexOf("}")
 
-    const xml = await res.text()
+    if (start === -1 || end === -1) return null
 
-    const rawItems = [
-      ...[...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].map((m) => m[1] || ""),
-      ...[...xml.matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)].map((m) => m[1] || ""),
-    ]
-
-    return rawItems.slice(0, 6).map((block) => {
-      const title =
-        block.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>/i)?.[1] ||
-        block.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ||
-        ""
-
-      const description =
-        block.match(/<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>/i)?.[1] ||
-        block.match(/<description[^>]*>([\s\S]*?)<\/description>/i)?.[1] ||
-        block.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i)?.[1] ||
-        ""
-
-      const link =
-        block.match(/<link[^>]*>(.*?)<\/link>/i)?.[1] ||
-        block.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>/i)?.[1] ||
-        ""
-
-      return {
-        title: stripHtml(title).replace(/&amp;/g, "&"),
-        description: stripHtml(description).replace(/&amp;/g, "&"),
-        link: stripHtml(link),
-      }
-    }).filter((item) => item.title && item.link)
-  } catch (e) {
-    console.error("RSS ERROR:", url, e)
-    return []
+    return JSON.parse(cleaned.slice(start, end + 1))
+  } catch {
+    return null
   }
 }
-async function fetchGdeltNews() {
+
+async function fetchPubMedArticles(): Promise<NewsItem[]> {
   try {
     const query = encodeURIComponent(
-      '(rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR physiotherapy OR "stroke recovery" OR "clinical rehabilitation")'
+      'rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR neurorehabilitation OR "stroke rehabilitation" OR "pediatric rehabilitation"'
     )
 
-    const url =
-      `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=ArtList&format=json&maxrecords=10&sort=HybridRel`
+    const searchUrl =
+      `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${query}&retmode=json&retmax=12&sort=pub+date`
 
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 RehabPearlsBot/1.0",
-        Accept: "application/json",
-      },
+    const searchRes = await fetch(searchUrl, {
       cache: "no-store",
+      headers: {
+        "User-Agent": "RehabPearlsBot/1.0",
+      },
     })
 
-    if (!res.ok) {
-      console.error("GDELT HTTP ERROR:", res.status)
-      return []
-    }
+    if (!searchRes.ok) return []
 
-    const data = await res.json()
+    const searchData = await searchRes.json()
+    const ids: string[] = searchData?.esearchresult?.idlist || []
 
-    return (data.articles || []).map((a: any) => ({
-      title: a.title || "",
-      description: a.seendate ? `Published ${a.seendate}. Source: ${a.sourceCountry || "medical news"}.` : "",
-      link: a.url || "",
-    })).filter((item: any) => item.title && item.link)
+    if (!ids.length) return []
+
+    const summaryUrl =
+      `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(",")}&retmode=json`
+
+    const summaryRes = await fetch(summaryUrl, {
+      cache: "no-store",
+      headers: {
+        "User-Agent": "RehabPearlsBot/1.0",
+      },
+    })
+
+    if (!summaryRes.ok) return []
+
+    const summaryData = await summaryRes.json()
+
+    return ids
+      .map((id) => {
+        const item = summaryData?.result?.[id]
+
+        return {
+          title: stripHtml(item?.title || ""),
+          description: item?.fulljournalname
+            ? `Recent rehabilitation research published in ${item.fulljournalname}.`
+            : "Recent rehabilitation research publication from PubMed.",
+          link: `https://pubmed.ncbi.nlm.nih.gov/${id}/`,
+          source: "PubMed",
+        }
+      })
+      .filter((item) => item.title && item.link)
   } catch (e) {
-    console.error("GDELT ERROR:", e)
+    console.error("PUBMED ERROR:", e)
     return []
   }
 }
-// ─────────────────────────────────────────────────────────────
-// GEMINI GENERATION
-// ─────────────────────────────────────────────────────────────
 
-async function generateArticle(news: {
-  title: string
-  description: string
-  link: string
-}) {
+function fallbackTopics(): NewsItem[] {
+  return [
+    {
+      title: "Clinical Reasoning Strategies for Physical Therapy and Rehabilitation Students",
+      description:
+        "Educational RehabPearls topic focused on clinical reasoning, board-style exam preparation, and real-world rehabilitation decision-making.",
+      link: "https://rehabpearls.com/guides",
+      source: "RehabPearls Editorial",
+    },
+    {
+      title: "How Neurorehabilitation Principles Support Stroke Recovery and Functional Outcomes",
+      description:
+        "Educational topic covering stroke rehabilitation, neuroplasticity, gait, balance, patient safety, and functional recovery.",
+      link: "https://rehabpearls.com/cases/neuro",
+      source: "RehabPearls Editorial",
+    },
+    {
+      title: "Orthopedic Rehabilitation Progression: From Pain Control to Return to Function",
+      description:
+        "Educational topic covering orthopedic rehab, exercise progression, patient management, and board-style clinical reasoning.",
+      link: "https://rehabpearls.com/cases/orthopedic",
+      source: "RehabPearls Editorial",
+    },
+  ]
+}
+
+function buildInternalLinksBlock() {
+  return `
+## Continue Learning with RehabPearls
+
+Explore related rehab learning resources:
+
+- Practice board-style questions in the [RehabPearls QBank](/qbank)
+- Read more clinical learning resources in the [Rehab Guides](/guides)
+- Review neurological rehabilitation cases in [Neuro Rehab Cases](/cases/neuro)
+- Study orthopedic patient scenarios in [Orthopedic Rehab Cases](/cases/orthopedic)
+- Browse pediatric therapy examples in [Pediatric Rehab Cases](/cases/pediatrics)
+`
+}
+
+async function generateArticle(news: NewsItem): Promise<GeneratedArticle | null> {
+  const apiKey = process.env["GEMINI_API_KEY"]
+  if (!apiKey) throw new Error("Missing GEMINI_API_KEY")
+
   const prompt = `
-You are an expert medical SEO editor writing for RehabPearls.com.
+You are a senior medical education editor for RehabPearls.com.
 
-Create a HIGH-QUALITY ORIGINAL educational article for:
+Write an ORIGINAL, high-quality, SEO-focused educational article for:
 - physical therapy students
 - occupational therapy students
 - speech-language pathology students
 - rehabilitation clinicians
 
-IMPORTANT:
-- DO NOT copy the source article.
-- Use the source only as inspiration/background.
-- Create completely original wording.
-- Strong SEO optimization.
-- Human-like writing.
-- Educational + clinical style.
-- Include rehab implications.
-- Include practical takeaways.
-- Include FAQ section.
-- Include headings.
-- Include strong keywords naturally.
+Use the source/topic only as background. Do not copy wording. Do not present this as medical advice.
 
-TARGET KEYWORDS:
-physical therapy
-occupational therapy
-speech therapy
-rehabilitation
-clinical reasoning
-rehab education
-board exam prep
-evidence-based rehab
+Required style:
+- Professional, human, non-generic writing
+- Strong clinical education value
+- Practical rehab implications
+- Board-style exam relevance
+- Clear headings
+- FAQ section
+- Natural internal linking opportunities
+- Avoid AI clichés like "delve", "unlock", "in today's fast-paced world"
 
-SOURCE TITLE:
-${news.title}
+Target SEO keywords:
+physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, rehab education, board exam prep, evidence-based rehab, neurorehabilitation, orthopedic rehabilitation, pediatric therapy
 
-SOURCE DESCRIPTION:
-${news.description}
+Source/topic:
+Title: ${news.title}
+Description: ${news.description}
+URL: ${news.link}
+Source: ${news.source}
 
-SOURCE URL:
-${news.link}
-
-RETURN JSON ONLY:
-
+Return VALID JSON ONLY with this shape:
 {
-  "title": "",
-  "excerpt": "",
-  "content": "",
-  "meta_title": "",
-  "meta_description": "",
-  "keywords": ["",""],
+  "title": "SEO optimized title",
+  "excerpt": "Short compelling excerpt, 150-180 characters",
+  "content": "Markdown article with H2 headings, bullet points, practical takeaways, and FAQ section",
+  "meta_title": "SEO title under 60 characters",
+  "meta_description": "SEO meta description under 155 characters",
+  "keywords": ["keyword 1", "keyword 2"],
+  "category": "neuro-rehab | orthopedic-rehab | pediatric-therapy | exam-prep | clinical-reasoning",
   "faq": [
-    {
-      "question": "",
-      "answer": ""
-    }
+    {"question": "Question?", "answer": "Answer."}
   ]
 }
 `
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
+        contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.8,
-          topP: 0.95,
+          temperature: 0.72,
+          topP: 0.9,
           maxOutputTokens: 8192,
         },
       }),
     }
   )
 
-  const data = await response.json()
-
-  const text =
-    data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}"
-
-  try {
-    return JSON.parse(text.replace(/```json/g, "").replace(/```/g, ""))
-  } catch (e) {
-    console.error("JSON PARSE ERROR", text)
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error("GEMINI ERROR:", response.status, errorText)
     return null
   }
-}
 
-// ─────────────────────────────────────────────────────────────
-// ROUTE
-// ─────────────────────────────────────────────────────────────
+  const data = await response.json()
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ""
+  const parsed = safeJsonParse(text)
+
+  if (!parsed?.title || !parsed?.content) {
+    console.error("GEMINI INVALID JSON:", text.slice(0, 500))
+    return null
+  }
+
+  parsed.content = `${parsed.content}\n\n${buildInternalLinksBlock()}`
+  parsed.keywords = Array.isArray(parsed.keywords) ? parsed.keywords : []
+
+  return parsed
+}
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = getSupabaseAdmin()
-    // SECURITY
     const authHeader = req.headers.get("authorization")
 
     if (
       process.env["CRON_SECRET"] &&
       authHeader !== `Bearer ${process.env["CRON_SECRET"]}`
     ) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // FETCH NEWS
-let allNews: any[] = []
-const sourceDebug: any[] = []
+    const supabase = getSupabaseAdmin()
+    const sourceDebug: any[] = []
 
-for (const source of RSS_SOURCES) {
-  const items = await fetchRSS(source)
+    let newsItems = await fetchPubMedArticles()
 
-  sourceDebug.push({
-    source,
-    type: "rss",
-    count: items.length,
-    sample: items[0] || null,
-  })
+    sourceDebug.push({
+      source: "PubMed",
+      count: newsItems.length,
+      sample: newsItems[0] || null,
+    })
 
-  allNews.push(...items)
-}
+    if (!newsItems.length) {
+      newsItems = fallbackTopics()
 
-if (allNews.length === 0) {
-  const gdeltItems = await fetchGdeltNews()
+      sourceDebug.push({
+        source: "RehabPearls Editorial Fallback",
+        count: newsItems.length,
+        sample: newsItems[0] || null,
+      })
+    }
 
-  sourceDebug.push({
-    source: "GDELT",
-    type: "gdelt",
-    count: gdeltItems.length,
-    sample: gdeltItems[0] || null,
-  })
-
-  allNews.push(...gdeltItems)
-}
-
-    // REMOVE DUPLICATES
     const uniqueNews = Array.from(
-      new Map(allNews.map((n) => [n.title, n])).values()
+      new Map(newsItems.map((item) => [item.title, item])).values()
     )
 
     const results = []
+    const skipped = []
 
-    // GENERATE POSTS
     for (const news of uniqueNews.slice(0, 3)) {
       const article = await generateArticle(news)
 
-      if (!article?.title || !article?.content) continue
+      if (!article?.title || !article?.content) {
+        skipped.push({ title: news.title, reason: "AI generation failed" })
+        continue
+      }
 
-      const slug = slugify(article.title)
+      const baseSlug = slugify(article.title)
+      const slug = `${baseSlug}-${new Date().toISOString().slice(0, 10)}`
 
-      // CHECK EXISTING
       const { data: existing } = await supabase
         .from("blog_posts")
         .select("id")
@@ -311,11 +312,10 @@ if (allNews.length === 0) {
         .maybeSingle()
 
       if (existing) {
-        console.log("ALREADY EXISTS:", slug)
+        skipped.push({ title: article.title, reason: "already exists" })
         continue
       }
 
-      // SAVE
       const { data, error } = await supabase
         .from("blog_posts")
         .insert([
@@ -326,9 +326,9 @@ if (allNews.length === 0) {
             content: article.content,
             meta_title: article.meta_title,
             meta_description: article.meta_description,
-            keywords: article.keywords || [],
+            keywords: article.keywords,
             source_urls: [news.link],
-            status: "draft",
+            status: "published",
             published_at: new Date().toISOString(),
           },
         ])
@@ -336,33 +336,38 @@ if (allNews.length === 0) {
         .single()
 
       if (error) {
-        console.error(error)
+        skipped.push({
+          title: article.title,
+          reason: error.message,
+        })
         continue
       }
 
       results.push(data)
     }
 
-   return NextResponse.json({
-  success: true,
-  fetched: allNews.length,
-  unique: uniqueNews.length,
-  generated: results.length,
-  sourceDebug,
-  sampleNews: uniqueNews.slice(0, 3),
-  posts: results,
-})
+    return NextResponse.json({
+      success: true,
+      fetched: newsItems.length,
+      generated: results.length,
+      sourceDebug,
+      skipped,
+      posts: results.map((post) => ({
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        status: post.status,
+      })),
+    })
   } catch (e: any) {
-    console.error(e)
+    console.error("GENERATE BLOG ERROR:", e)
 
     return NextResponse.json(
       {
         success: false,
-        error: e.message,
+        error: e.message || "Unknown error",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     )
   }
 }
