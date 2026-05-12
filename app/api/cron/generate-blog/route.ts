@@ -25,12 +25,11 @@ const GEMINI_API_KEY = process.env["GEMINI_API_KEY"]!
 // ─────────────────────────────────────────────────────────────
 
 const RSS_SOURCES = [
-  "https://www.nih.gov/news-events/news-releases/feed",
+  "https://www.cdc.gov/media/rss.xml",
   "https://medlineplus.gov/feeds/news_en.xml",
-  "https://www.cdc.gov/media/rss.htm",
-  "https://www.news-medical.net/rss/newsfeeds.aspx",
+  "https://www.sciencedaily.com/rss/health_medicine/rehabilitation.xml",
+  "https://medicalxpress.com/rss-feed/medicine-health-news/",
 ]
-
 // ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -52,36 +51,47 @@ async function fetchRSS(url: string) {
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "RehabPearlsBot/1.0",
+        "User-Agent": "Mozilla/5.0 RehabPearlsBot/1.0",
+        Accept: "application/rss+xml, application/xml, text/xml, */*",
       },
-      next: { revalidate: 3600 },
+      cache: "no-store",
     })
+
+    if (!res.ok) {
+      console.error("RSS HTTP ERROR:", url, res.status)
+      return []
+    }
 
     const xml = await res.text()
 
-    const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]
+    const rawItems = [
+      ...[...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].map((m) => m[1] || ""),
+      ...[...xml.matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)].map((m) => m[1] || ""),
+    ]
 
-    return items.slice(0, 5).map((item) => {
-      const block = item[1] || ""
-
+    return rawItems.slice(0, 6).map((block) => {
       const title =
-        block.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/)?.[1] ||
-        block.match(/<title>(.*?)<\/title>/)?.[1] ||
+        block.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>/i)?.[1] ||
+        block.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ||
         ""
 
       const description =
-        block.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/)?.[1] ||
-        block.match(/<description>(.*?)<\/description>/)?.[1] ||
+        block.match(/<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>/i)?.[1] ||
+        block.match(/<description[^>]*>([\s\S]*?)<\/description>/i)?.[1] ||
+        block.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i)?.[1] ||
         ""
 
-      const link = block.match(/<link>(.*?)<\/link>/)?.[1] || ""
+      const link =
+        block.match(/<link[^>]*>(.*?)<\/link>/i)?.[1] ||
+        block.match(/<link[^>]*href=["']([^"']+)["'][^>]*\/?>/i)?.[1] ||
+        ""
 
       return {
-        title: stripHtml(title),
-        description: stripHtml(description),
-        link,
+        title: stripHtml(title).replace(/&amp;/g, "&"),
+        description: stripHtml(description).replace(/&amp;/g, "&"),
+        link: stripHtml(link),
       }
-    })
+    }).filter((item) => item.title && item.link)
   } catch (e) {
     console.error("RSS ERROR:", url, e)
     return []
