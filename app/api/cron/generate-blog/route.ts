@@ -21,13 +21,21 @@ type AiArticle = {
   keywords?: string[]
 }
 
+const OPENROUTER_MODELS = [
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "mistralai/mistral-7b-instruct:free",
+  "google/gemma-3-27b-it:free",
+]
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 function getSupabaseAdmin() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   const key = process.env["SUPABASE_SERVICE_ROLE_KEY"]
 
-  if (!url || !key) {
-    throw new Error("Missing Supabase admin env variables")
-  }
+  if (!url || !key) throw new Error("Missing Supabase admin env variables")
 
   return createClient(url, key)
 }
@@ -100,8 +108,7 @@ async function fetchPubMedArticles(): Promise<NewsItem[]> {
       'rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR neurorehabilitation OR "stroke rehabilitation" OR "orthopedic rehabilitation" OR "pediatric rehabilitation"'
     )
 
-    const searchUrl =
-      `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${query}&retmode=json&retmax=12&sort=pub+date`
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${query}&retmode=json&retmax=12&sort=pub+date`
 
     const searchRes = await fetch(searchUrl, {
       cache: "no-store",
@@ -115,8 +122,7 @@ async function fetchPubMedArticles(): Promise<NewsItem[]> {
 
     if (!ids.length) return []
 
-    const summaryUrl =
-      `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(",")}&retmode=json`
+    const summaryUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(",")}&retmode=json`
 
     const summaryRes = await fetch(summaryUrl, {
       cache: "no-store",
@@ -173,9 +179,114 @@ function fallbackTopics(): NewsItem[] {
   ]
 }
 
+function createFallbackSeoArticle(news: NewsItem): AiArticle {
+  const title = `${news.title}: Rehab Education and Clinical Reasoning Guide`
+
+  const content = `
+<p>${news.title} connects directly to how rehabilitation students and clinicians think about patient care, clinical reasoning, and evidence-based rehab practice. For physical therapy, occupational therapy, and speech therapy learners, topics like this can help connect research awareness with practical decision-making.</p>
+
+<h2>Why This Topic Matters in Rehabilitation</h2>
+<p>Rehabilitation is not only about memorizing facts. Strong clinicians learn how to interpret patient presentation, connect impairments with function, and choose interventions that match the patient’s goals, safety needs, and recovery stage.</p>
+
+<h2>Clinical Reasoning Takeaways</h2>
+<ul>
+  <li><strong>Physical therapy:</strong> consider movement, strength, balance, pain, mobility, and return-to-function planning.</li>
+  <li><strong>Occupational therapy:</strong> consider ADLs, participation, safety, cognition, home routines, and functional independence.</li>
+  <li><strong>Speech therapy:</strong> consider communication, swallowing, cognition, patient education, and interdisciplinary care.</li>
+  <li><strong>Board exam prep:</strong> focus on patient safety, prioritization, contraindications, and evidence-based decisions.</li>
+</ul>
+
+<h2>How Students Can Study This Topic</h2>
+<p>Use this topic as a starting point for board-style questions, clinical cases, and scenario-based learning. The key is to ask: what is the patient problem, what information matters most, and what intervention is safest and most effective?</p>
+
+<h2>Practical Rehab Application</h2>
+<p>For rehab professionals, research headlines should become practical questions: how does this affect assessment, treatment planning, patient education, progression, and discharge recommendations?</p>
+
+<h2>FAQ</h2>
+<h3>Is this medical advice?</h3>
+<p>No. RehabPearls content is for education and exam preparation only.</p>
+
+<h3>How does this help with board exam prep?</h3>
+<p>It helps students practice clinical reasoning, identify key patient factors, and connect evidence-based rehab concepts with realistic scenarios.</p>
+
+<h3>Where should I practice more?</h3>
+<p>Use the <a href="/qbank">RehabPearls QBank</a>, read <a href="/guides">rehab study guides</a>, and review <a href="/cases/neuro">neuro rehab cases</a>, <a href="/cases/orthopedic">orthopedic cases</a>, and <a href="/cases/pediatrics">pediatric therapy cases</a>.</p>
+`
+
+  return {
+    title,
+    content: appendInternalLinksBlock(content),
+    meta_description:
+      "Explore rehab clinical reasoning, physical therapy, occupational therapy, speech therapy, and board exam prep insights.",
+    focus_keyword: "rehabilitation clinical reasoning",
+    excerpt:
+      "A rehab education guide connecting current research topics with clinical reasoning, board exam prep, and practical therapy learning.",
+    keywords: [
+      "physical therapy",
+      "occupational therapy",
+      "speech therapy",
+      "rehabilitation",
+      "clinical reasoning",
+      "board exam prep",
+      "evidence-based rehab",
+      "rehab education",
+      "neurorehabilitation",
+      "orthopedic rehabilitation",
+      "pediatric therapy",
+    ],
+  }
+}
+
+async function callOpenRouter(prompt: string, apiKey: string) {
+  let lastError = ""
+
+  for (const model of OPENROUTER_MODELS) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://rehabpearls.com",
+          "X-Title": "RehabPearls AI Blog",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.45,
+        }),
+      })
+
+      const rawBody = await response.text()
+
+      if (response.ok) {
+        try {
+          const body = JSON.parse(rawBody)
+          const aiText = body?.choices?.[0]?.message?.content || ""
+          if (aiText) return { aiText, model }
+        } catch {
+          lastError = `Parse failed for ${model}: ${rawBody.slice(0, 500)}`
+        }
+      } else {
+        lastError = `${model} failed ${response.status}: ${rawBody.slice(0, 500)}`
+        console.error("OPENROUTER ERROR:", lastError)
+
+        if (response.status === 429 && attempt < 3) {
+          await sleep(12000)
+          continue
+        }
+
+        break
+      }
+    }
+  }
+
+  console.error("OPENROUTER FINAL ERROR:", lastError)
+  return null
+}
+
 async function generateArticle(news: NewsItem): Promise<AiArticle | null> {
   const apiKey = process.env["OPENROUTER_API_KEY"]
-
   if (!apiKey) throw new Error("Missing OPENROUTER_API_KEY")
 
   const prompt = `
@@ -228,48 +339,17 @@ Source name:
 ${news.source}
 `
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://rehabpearls.com",
-      "X-Title": "RehabPearls AI Blog",
-    },
-    body: JSON.stringify({
-      model: "meta-llama/llama-3.3-70b-instruct:free",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.45,
-    }),
-  })
+  const result = await callOpenRouter(prompt, apiKey)
 
-  const rawBody = await response.text()
-
-  if (!response.ok) {
-    console.error("OPENROUTER ERROR:", response.status, rawBody.slice(0, 1000))
-    return null
+  if (!result?.aiText) {
+    return createFallbackSeoArticle(news)
   }
 
-  let aiText = ""
-
-  try {
-    const body = JSON.parse(rawBody)
-    aiText = body?.choices?.[0]?.message?.content || ""
-  } catch {
-    console.error("OPENROUTER RAW PARSE ERROR:", rawBody.slice(0, 1000))
-    return null
-  }
-
-  if (!aiText) {
-    console.error("OPENROUTER EMPTY RESPONSE:", rawBody.slice(0, 1000))
-    return null
-  }
-
-  const article = safeParseAiArticle(aiText)
+  const article = safeParseAiArticle(result.aiText)
 
   if (!article) {
-    console.error("OPENROUTER JSON PARSE FAILED:", aiText.slice(0, 1000))
-    return null
+    console.error("OPENROUTER JSON PARSE FAILED:", result.aiText.slice(0, 1000))
+    return createFallbackSeoArticle(news)
   }
 
   article.content = appendInternalLinksBlock(article.content)
