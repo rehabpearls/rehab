@@ -237,7 +237,7 @@ ${news.source}
       "X-Title": "RehabPearls AI Blog",
     },
     body: JSON.stringify({
-      model: "deepseek/deepseek-chat-v3-0324:free",
+      model: "meta-llama/llama-3.3-70b-instruct:free",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.45,
     }),
