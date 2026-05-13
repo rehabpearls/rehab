@@ -317,7 +317,7 @@ export async function GET(req: NextRequest) {
     const results = []
     const skipped = []
 
-    for (const news of uniqueNews.slice(0, 3)) {
+    for (const news of uniqueNews.slice(0, 1)) {
       const article = await generateArticle(news)
 
       if (!article?.title || !article?.content) {
