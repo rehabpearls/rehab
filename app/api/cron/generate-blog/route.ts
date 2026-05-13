@@ -25,9 +25,7 @@ function getSupabaseAdmin() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   const key = process.env["SUPABASE_SERVICE_ROLE_KEY"]
 
-  if (!url || !key) {
-    throw new Error("Missing Supabase admin env variables")
-  }
+  if (!url || !key) throw new Error("Missing Supabase admin env variables")
 
   return createClient(url, key)
 }
@@ -178,42 +176,39 @@ function fallbackTopics(): NewsItem[] {
 }
 
 async function generateArticle(news: NewsItem): Promise<AiArticle | null> {
-  const apiKey = process.env["OPENAI_API_KEY"]
+  const apiKey = process.env["GEMINI_API_KEY"]
 
-  if (!apiKey) {
-    throw new Error("Missing OPENAI_API_KEY")
-  }
+  if (!apiKey) throw new Error("Missing GEMINI_API_KEY")
 
   const prompt = `
-Rewrite this medical / rehabilitation source into a unique, SEO-optimized educational article for RehabPearls.
+You are a senior medical education SEO editor for RehabPearls.
 
-Audience:
+Create an original educational article for:
 - physical therapy students
 - occupational therapy students
 - speech-language pathology students
-- rehab clinicians
+- rehabilitation clinicians
 - board exam prep users
 
 Requirements:
-- Preserve factual accuracy
-- Do NOT copy sentences from the source
-- Do NOT claim medical advice
-- Make it original, readable, and professional
-- Focus naturally on: physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab
-- Add a short intro
-- Add 3-5 H2 headings
-- Add practical rehab takeaways
-- Add exam relevance / clinical reasoning angle
-- Add short FAQ section
-- Return clean HTML only using: <p>, <h2>, <h3>, <strong>, <em>, <a>, <ul>, <li>
-- Do not include scripts, markdown, code fences, citations in brackets, or raw source copied text
-- Do not say "this article was rewritten"
+- Do NOT copy source sentences.
+- Do NOT claim medical advice.
+- Make it professional and useful.
+- Use clean HTML only: <p>, <h2>, <h3>, <strong>, <em>, <a>, <ul>, <li>.
+- Include 3-5 H2 headings.
+- Include practical rehab takeaways.
+- Include clinical reasoning / board exam relevance.
+- Include short FAQ section.
+- Natural SEO keywords: physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab.
+- No markdown.
+- No code fences.
+- Return ONLY JSON.
 
-Return ONLY valid JSON in this exact format:
+JSON shape:
 {
   "title": "SEO title here",
   "content": "<p>Intro...</p><h2>...</h2><p>...</p>",
-  "meta_description": "155-160 character SEO meta description",
+  "meta_description": "155 character SEO meta description",
   "focus_keyword": "rehabilitation",
   "excerpt": "Short excerpt for blog archive",
   "keywords": ["physical therapy", "rehabilitation"]
@@ -232,46 +227,56 @@ Source name:
 ${news.source}
 `
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-      temperature: 0.4,
-      response_format: {
-        type: "json_object",
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    }),
-  })
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.45,
+          topP: 0.85,
+          maxOutputTokens: 8192,
+          responseMimeType: "application/json",
+        },
+      }),
+    }
+  )
 
   const rawBody = await response.text()
 
   if (!response.ok) {
-    console.error("OPENAI ERROR:", response.status, rawBody.slice(0, 1000))
+    console.error("GEMINI ERROR:", response.status, rawBody.slice(0, 1000))
     return null
   }
 
-  const body = JSON.parse(rawBody)
-  const aiText = body?.choices?.[0]?.message?.content
+  let aiText = ""
+
+  try {
+    const body = JSON.parse(rawBody)
+    aiText = body?.candidates?.[0]?.content?.parts?.[0]?.text || ""
+  } catch {
+    console.error("GEMINI RAW PARSE ERROR:", rawBody.slice(0, 1000))
+    return null
+  }
 
   if (!aiText) {
-    console.error("OPENAI EMPTY RESPONSE:", rawBody.slice(0, 1000))
+    console.error("GEMINI EMPTY RESPONSE:", rawBody.slice(0, 1000))
     return null
   }
 
   const article = safeParseAiArticle(aiText)
 
   if (!article) {
-    console.error("OPENAI JSON PARSE FAILED:", aiText.slice(0, 1000))
+    console.error("GEMINI JSON PARSE FAILED:", aiText.slice(0, 1000))
     return null
   }
 
