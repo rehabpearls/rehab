@@ -176,10 +176,111 @@ function fallbackTopics(): NewsItem[] {
 }
 
 async function generateArticle(news: NewsItem): Promise<AiArticle | null> {
-  const apiKey = process.env["GEMINI_API_KEY"]
+  const apiKey = process.env["OPENROUTER_API_KEY"]
 
-  if (!apiKey) throw new Error("Missing GEMINI_API_KEY")
+  if (!apiKey) throw new Error("Missing OPENROUTER_API_KEY")
 
+  const prompt = `
+You are a senior medical education SEO editor for RehabPearls.
+
+Create an original educational article for:
+- physical therapy students
+- occupational therapy students
+- speech-language pathology students
+- rehabilitation clinicians
+- board exam prep users
+
+Requirements:
+- Do NOT copy source sentences.
+- Do NOT claim medical advice.
+- Make it professional and useful.
+- Use clean HTML only: <p>, <h2>, <h3>, <strong>, <em>, <a>, <ul>, <li>.
+- Include 3-5 H2 headings.
+- Include practical rehab takeaways.
+- Include clinical reasoning / board exam relevance.
+- Include short FAQ section.
+- Natural SEO keywords: physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab.
+- No markdown.
+- No code fences.
+- Return ONLY valid JSON.
+
+JSON shape:
+{
+  "title": "SEO title here",
+  "content": "<p>Intro...</p><h2>...</h2><p>...</p>",
+  "meta_description": "155 character SEO meta description",
+  "focus_keyword": "rehabilitation",
+  "excerpt": "Short excerpt for blog archive",
+  "keywords": ["physical therapy", "rehabilitation"]
+}
+
+Source title:
+${news.title}
+
+Source description:
+${news.description}
+
+Source URL:
+${news.link}
+
+Source name:
+${news.source}
+`
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://rehabpearls.com",
+      "X-Title": "RehabPearls AI Blog",
+    },
+    body: JSON.stringify({
+      model: "deepseek/deepseek-chat-v3-0324:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.45,
+    }),
+  })
+
+  const rawBody = await response.text()
+
+  if (!response.ok) {
+    console.error("OPENROUTER ERROR:", response.status, rawBody.slice(0, 1000))
+    return null
+  }
+
+  let aiText = ""
+
+  try {
+    const body = JSON.parse(rawBody)
+    aiText = body?.choices?.[0]?.message?.content || ""
+  } catch {
+    console.error("OPENROUTER RAW PARSE ERROR:", rawBody.slice(0, 1000))
+    return null
+  }
+
+  if (!aiText) {
+    console.error("OPENROUTER EMPTY RESPONSE:", rawBody.slice(0, 1000))
+    return null
+  }
+
+  const article = safeParseAiArticle(aiText)
+
+  if (!article) {
+    console.error("OPENROUTER JSON PARSE FAILED:", aiText.slice(0, 1000))
+    return null
+  }
+
+  article.content = appendInternalLinksBlock(article.content)
+  article.keywords = Array.isArray(article.keywords) ? article.keywords : []
+
+  return article
+}
   const prompt = `
 You are a senior medical education SEO editor for RehabPearls.
 
