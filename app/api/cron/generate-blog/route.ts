@@ -25,7 +25,9 @@ function getSupabaseAdmin() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   const key = process.env["SUPABASE_SERVICE_ROLE_KEY"]
 
-  if (!url || !key) throw new Error("Missing Supabase admin env variables")
+  if (!url || !key) {
+    throw new Error("Missing Supabase admin env variables")
+  }
 
   return createClient(url, key)
 }
@@ -88,7 +90,7 @@ function appendInternalLinksBlock(content: string) {
 
 <div class="rehabpearls-internal-links" style="margin-top:32px;padding:22px;border:1px solid #243041;border-radius:16px;background:#12192B;">
   <h2>Continue Learning with RehabPearls</h2>
-  <p>Build stronger clinical reasoning with our <a href="/qbank">rehab question bank</a>, explore expert <a href="/guides">rehab study guides</a>, review <a href="/cases/neuro">neuro rehab cases</a>, and practice with <a href="/cases/orthopedic">orthopedic rehabilitation cases</a>.</p>
+  <p>Build stronger clinical reasoning with our <a href="/qbank">rehab question bank</a>, explore expert <a href="/guides">rehab study guides</a>, review <a href="/cases/neuro">neuro rehab cases</a>, practice with <a href="/cases/orthopedic">orthopedic rehabilitation cases</a>, and study <a href="/cases/pediatrics">pediatric therapy cases</a>.</p>
 </div>`
 }
 
@@ -103,9 +105,7 @@ async function fetchPubMedArticles(): Promise<NewsItem[]> {
 
     const searchRes = await fetch(searchUrl, {
       cache: "no-store",
-      headers: {
-        "User-Agent": "RehabPearlsBot/1.0",
-      },
+      headers: { "User-Agent": "RehabPearlsBot/1.0" },
     })
 
     if (!searchRes.ok) return []
@@ -120,9 +120,7 @@ async function fetchPubMedArticles(): Promise<NewsItem[]> {
 
     const summaryRes = await fetch(summaryUrl, {
       cache: "no-store",
-      headers: {
-        "User-Agent": "RehabPearlsBot/1.0",
-      },
+      headers: { "User-Agent": "RehabPearlsBot/1.0" },
     })
 
     if (!summaryRes.ok) return []
@@ -183,23 +181,26 @@ async function generateArticle(news: NewsItem): Promise<AiArticle | null> {
   const prompt = `
 You are a senior medical education SEO editor for RehabPearls.
 
-Create an original educational article for:
+Create a high-quality original educational article for:
 - physical therapy students
 - occupational therapy students
 - speech-language pathology students
 - rehabilitation clinicians
 - board exam prep users
 
+Main SEO keywords to use naturally:
+physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab, neurorehabilitation, orthopedic rehabilitation, pediatric therapy, rehab education, therapy students, clinical cases, rehab question bank.
+
 Requirements:
 - Do NOT copy source sentences.
 - Do NOT claim medical advice.
-- Make it professional and useful.
+- Make it professional, human, useful, and specific.
 - Use clean HTML only: <p>, <h2>, <h3>, <strong>, <em>, <a>, <ul>, <li>.
-- Include 3-5 H2 headings.
+- Include 4-6 H2 headings.
 - Include practical rehab takeaways.
 - Include clinical reasoning / board exam relevance.
-- Include short FAQ section.
-- Natural SEO keywords: physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab.
+- Include a short FAQ section with 3 questions.
+- Add internal links naturally to /qbank, /guides, /cases/neuro, /cases/orthopedic, /cases/pediatrics.
 - No markdown.
 - No code fences.
 - Return ONLY valid JSON.
@@ -237,12 +238,7 @@ ${news.source}
     },
     body: JSON.stringify({
       model: "deepseek/deepseek-chat-v3-0324:free",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.45,
     }),
   })
@@ -281,111 +277,6 @@ ${news.source}
 
   return article
 }
-  const prompt = `
-You are a senior medical education SEO editor for RehabPearls.
-
-Create an original educational article for:
-- physical therapy students
-- occupational therapy students
-- speech-language pathology students
-- rehabilitation clinicians
-- board exam prep users
-
-Requirements:
-- Do NOT copy source sentences.
-- Do NOT claim medical advice.
-- Make it professional and useful.
-- Use clean HTML only: <p>, <h2>, <h3>, <strong>, <em>, <a>, <ul>, <li>.
-- Include 3-5 H2 headings.
-- Include practical rehab takeaways.
-- Include clinical reasoning / board exam relevance.
-- Include short FAQ section.
-- Natural SEO keywords: physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab.
-- No markdown.
-- No code fences.
-- Return ONLY JSON.
-
-JSON shape:
-{
-  "title": "SEO title here",
-  "content": "<p>Intro...</p><h2>...</h2><p>...</p>",
-  "meta_description": "155 character SEO meta description",
-  "focus_keyword": "rehabilitation",
-  "excerpt": "Short excerpt for blog archive",
-  "keywords": ["physical therapy", "rehabilitation"]
-}
-
-Source title:
-${news.title}
-
-Source description:
-${news.description}
-
-Source URL:
-${news.link}
-
-Source name:
-${news.source}
-`
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.45,
-          topP: 0.85,
-          maxOutputTokens: 8192,
-          responseMimeType: "application/json",
-        },
-      }),
-    }
-  )
-
-  const rawBody = await response.text()
-
-  if (!response.ok) {
-    console.error("GEMINI ERROR:", response.status, rawBody.slice(0, 1000))
-    return null
-  }
-
-  let aiText = ""
-
-  try {
-    const body = JSON.parse(rawBody)
-    aiText = body?.candidates?.[0]?.content?.parts?.[0]?.text || ""
-  } catch {
-    console.error("GEMINI RAW PARSE ERROR:", rawBody.slice(0, 1000))
-    return null
-  }
-
-  if (!aiText) {
-    console.error("GEMINI EMPTY RESPONSE:", rawBody.slice(0, 1000))
-    return null
-  }
-
-  const article = safeParseAiArticle(aiText)
-
-  if (!article) {
-    console.error("GEMINI JSON PARSE FAILED:", aiText.slice(0, 1000))
-    return null
-  }
-
-  article.content = appendInternalLinksBlock(article.content)
-  article.keywords = Array.isArray(article.keywords) ? article.keywords : []
-
-  return article
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -399,7 +290,6 @@ export async function GET(req: NextRequest) {
     }
 
     const supabase = getSupabaseAdmin()
-
     const sourceDebug: any[] = []
 
     let newsItems = await fetchPubMedArticles()
