@@ -10,6 +10,7 @@ type NewsItem = {
   description: string
   link: string
   source: string
+  source_id?: string
 }
 
 type AiArticle = {
@@ -27,6 +28,8 @@ const OPENROUTER_MODELS = [
   "google/gemma-3-27b-it:free",
 ]
 
+const MAX_POSTS_PER_RUN = 3
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -35,7 +38,9 @@ function getSupabaseAdmin() {
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   const key = process.env["SUPABASE_SERVICE_ROLE_KEY"]
 
-  if (!url || !key) throw new Error("Missing Supabase admin env variables")
+  if (!url || !key) {
+    throw new Error("Missing Supabase admin env variables")
+  }
 
   return createClient(url, key)
 }
@@ -48,7 +53,18 @@ function slugify(text: string) {
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
-    .slice(0, 90)
+    .slice(0, 85)
+}
+
+function hashString(input: string) {
+  let hash = 0
+
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash << 5) - hash + input.charCodeAt(i)
+    hash |= 0
+  }
+
+  return Math.abs(hash).toString(36).slice(0, 8)
 }
 
 function stripHtml(input: string) {
@@ -85,10 +101,76 @@ function safeParseAiArticle(raw: string): AiArticle | null {
 
     if (!parsed?.title || !parsed?.content) return null
 
-    return parsed
+    return {
+      title: String(parsed.title),
+      content: String(parsed.content),
+      meta_description: String(parsed.meta_description || ""),
+      focus_keyword: String(parsed.focus_keyword || "rehabilitation clinical reasoning"),
+      excerpt: String(parsed.excerpt || ""),
+      keywords: Array.isArray(parsed.keywords) ? parsed.keywords.map(String) : [],
+    }
   } catch {
     return null
   }
+}
+
+function detectTopic(news: NewsItem) {
+  const text = `${news.title} ${news.description}`.toLowerCase()
+
+  if (text.includes("stroke") || text.includes("neuro") || text.includes("brain")) {
+    return {
+      label: "Neuro Rehab",
+      focus: "neurorehabilitation clinical reasoning",
+      guideUrl: "/cases/neuro",
+    }
+  }
+
+  if (text.includes("orthopedic") || text.includes("muscle") || text.includes("knee") || text.includes("shoulder") || text.includes("pain")) {
+    return {
+      label: "Orthopedic Rehab",
+      focus: "orthopedic rehabilitation clinical reasoning",
+      guideUrl: "/cases/orthopedic",
+    }
+  }
+
+  if (text.includes("pediatric") || text.includes("children") || text.includes("child")) {
+    return {
+      label: "Pediatric Therapy",
+      focus: "pediatric rehabilitation clinical reasoning",
+      guideUrl: "/cases/pediatrics",
+    }
+  }
+
+  if (text.includes("speech") || text.includes("swallow") || text.includes("language")) {
+    return {
+      label: "Speech Therapy",
+      focus: "speech therapy clinical reasoning",
+      guideUrl: "/cases/neuro",
+    }
+  }
+
+  return {
+    label: "Rehab Education",
+    focus: "rehabilitation clinical reasoning",
+    guideUrl: "/guides",
+  }
+}
+
+function generateSeoTitle(news: NewsItem) {
+  const topic = detectTopic(news)
+
+  const templates = [
+    `${topic.label} Clinical Reasoning Guide for Therapy Students`,
+    `${topic.label} Study Guide for Board Exam Prep`,
+    `Evidence-Based ${topic.label} Breakdown for Rehab Learners`,
+    `How Clinicians Apply ${topic.label} Evidence in Practice`,
+    `${topic.label} Case-Based Learning and Exam Prep Guide`,
+  ]
+
+  const seed = hashString(news.title)
+  const index = parseInt(seed.slice(0, 2), 36) % templates.length
+
+  return `${templates[index]} | RehabPearls`
 }
 
 function appendInternalLinksBlock(content: string) {
@@ -108,7 +190,7 @@ async function fetchPubMedArticles(): Promise<NewsItem[]> {
       'rehabilitation OR "physical therapy" OR "occupational therapy" OR "speech therapy" OR neurorehabilitation OR "stroke rehabilitation" OR "orthopedic rehabilitation" OR "pediatric rehabilitation"'
     )
 
-    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${query}&retmode=json&retmax=12&sort=pub+date`
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${query}&retmode=json&retmax=18&sort=pub+date`
 
     const searchRes = await fetch(searchUrl, {
       cache: "no-store",
@@ -144,6 +226,7 @@ async function fetchPubMedArticles(): Promise<NewsItem[]> {
             : "Recent rehabilitation research publication from PubMed.",
           link: `https://pubmed.ncbi.nlm.nih.gov/${id}/`,
           source: "PubMed",
+          source_id: id,
         }
       })
       .filter((item) => item.title && item.link)
@@ -161,6 +244,7 @@ function fallbackTopics(): NewsItem[] {
         "Educational RehabPearls topic focused on clinical reasoning, board-style exam preparation, and real-world rehabilitation decision-making.",
       link: "https://rehabpearls.com/guides",
       source: "RehabPearls Editorial",
+      source_id: "editorial-clinical-reasoning",
     },
     {
       title: "How Neurorehabilitation Principles Support Stroke Recovery and Functional Outcomes",
@@ -168,39 +252,50 @@ function fallbackTopics(): NewsItem[] {
         "Educational topic covering stroke rehabilitation, neuroplasticity, gait, balance, patient safety, and functional recovery.",
       link: "https://rehabpearls.com/cases/neuro",
       source: "RehabPearls Editorial",
+      source_id: "editorial-neurorehab",
     },
     {
-      title: "Orthopedic Rehabilitation Progression: From Pain Control to Return to Function",
+      title: "Orthopedic Rehabilitation Progression From Pain Control to Return to Function",
       description:
         "Educational topic covering orthopedic rehab, exercise progression, patient management, and board-style clinical reasoning.",
       link: "https://rehabpearls.com/cases/orthopedic",
       source: "RehabPearls Editorial",
+      source_id: "editorial-orthopedic",
     },
   ]
 }
 
 function createFallbackSeoArticle(news: NewsItem): AiArticle {
-  const title = `${news.title}: Rehab Education and Clinical Reasoning Guide`
+  const topic = detectTopic(news)
+  const title = generateSeoTitle(news)
 
   const content = `
-<p>${news.title} connects directly to how rehabilitation students and clinicians think about patient care, clinical reasoning, and evidence-based rehab practice. For physical therapy, occupational therapy, and speech therapy learners, topics like this can help connect research awareness with practical decision-making.</p>
+<p>${stripHtml(news.title)} is useful for rehabilitation learners because it connects research awareness with clinical reasoning, patient safety, and evidence-based decision-making. For physical therapy, occupational therapy, and speech therapy students, topics like this help translate information into practical rehab questions.</p>
 
 <h2>Why This Topic Matters in Rehabilitation</h2>
-<p>Rehabilitation is not only about memorizing facts. Strong clinicians learn how to interpret patient presentation, connect impairments with function, and choose interventions that match the patient’s goals, safety needs, and recovery stage.</p>
+<p>Rehabilitation is not only about memorizing facts. Strong clinicians learn how to interpret patient presentation, connect impairments with function, and select interventions that match the patient’s goals, precautions, environment, and recovery stage.</p>
 
 <h2>Clinical Reasoning Takeaways</h2>
 <ul>
-  <li><strong>Physical therapy:</strong> consider movement, strength, balance, pain, mobility, and return-to-function planning.</li>
-  <li><strong>Occupational therapy:</strong> consider ADLs, participation, safety, cognition, home routines, and functional independence.</li>
-  <li><strong>Speech therapy:</strong> consider communication, swallowing, cognition, patient education, and interdisciplinary care.</li>
-  <li><strong>Board exam prep:</strong> focus on patient safety, prioritization, contraindications, and evidence-based decisions.</li>
+  <li><strong>Physical therapy:</strong> consider movement, strength, balance, pain, mobility, gait, endurance, and return-to-function planning.</li>
+  <li><strong>Occupational therapy:</strong> consider ADLs, participation, safety, cognition, home routines, adaptive strategies, and functional independence.</li>
+  <li><strong>Speech therapy:</strong> consider communication, swallowing, cognition, patient education, and interdisciplinary care planning.</li>
+  <li><strong>Board exam prep:</strong> focus on patient safety, prioritization, contraindications, clinical signs, and evidence-based decisions.</li>
 </ul>
 
 <h2>How Students Can Study This Topic</h2>
-<p>Use this topic as a starting point for board-style questions, clinical cases, and scenario-based learning. The key is to ask: what is the patient problem, what information matters most, and what intervention is safest and most effective?</p>
+<p>Use this topic as a starting point for board-style questions, clinical cases, and scenario-based learning. Ask: what is the patient problem, what information matters most, what is unsafe, and what intervention is most appropriate?</p>
 
 <h2>Practical Rehab Application</h2>
-<p>For rehab professionals, research headlines should become practical questions: how does this affect assessment, treatment planning, patient education, progression, and discharge recommendations?</p>
+<p>For rehab professionals, research headlines should become practical questions: how does this affect assessment, treatment planning, patient education, progression, documentation, and discharge recommendations?</p>
+
+<h2>Exam Prep Pearls</h2>
+<ul>
+  <li>Identify the safest next step before choosing an intervention.</li>
+  <li>Connect impairments to activity limitations and participation restrictions.</li>
+  <li>Use evidence to support treatment progression, not to replace clinical judgment.</li>
+  <li>Review contraindications, red flags, and patient-specific precautions.</li>
+</ul>
 
 <h2>FAQ</h2>
 <h3>Is this medical advice?</h3>
@@ -216,11 +311,10 @@ function createFallbackSeoArticle(news: NewsItem): AiArticle {
   return {
     title,
     content: appendInternalLinksBlock(content),
-    meta_description:
-      "Explore rehab clinical reasoning, physical therapy, occupational therapy, speech therapy, and board exam prep insights.",
-    focus_keyword: "rehabilitation clinical reasoning",
+    meta_description: `${topic.label} guide for rehab students covering clinical reasoning, evidence-based rehab, and board exam prep.`,
+    focus_keyword: topic.focus,
     excerpt:
-      "A rehab education guide connecting current research topics with clinical reasoning, board exam prep, and practical therapy learning.",
+      "A rehab education guide connecting research awareness with clinical reasoning, board exam prep, and practical therapy learning.",
     keywords: [
       "physical therapy",
       "occupational therapy",
@@ -230,9 +324,9 @@ function createFallbackSeoArticle(news: NewsItem): AiArticle {
       "board exam prep",
       "evidence-based rehab",
       "rehab education",
-      "neurorehabilitation",
-      "orthopedic rehabilitation",
-      "pediatric therapy",
+      "therapy students",
+      "clinical cases",
+      topic.focus,
     ],
   }
 }
@@ -285,9 +379,11 @@ async function callOpenRouter(prompt: string, apiKey: string) {
   return null
 }
 
-async function generateArticle(news: NewsItem): Promise<AiArticle | null> {
+async function generateArticle(news: NewsItem): Promise<AiArticle> {
   const apiKey = process.env["OPENROUTER_API_KEY"]
-  if (!apiKey) throw new Error("Missing OPENROUTER_API_KEY")
+  if (!apiKey) return createFallbackSeoArticle(news)
+
+  const topic = detectTopic(news)
 
   const prompt = `
 You are a senior medical education SEO editor for RehabPearls.
@@ -298,6 +394,9 @@ Create a high-quality original educational article for:
 - speech-language pathology students
 - rehabilitation clinicians
 - board exam prep users
+
+Primary angle:
+${topic.label}
 
 Main SEO keywords to use naturally:
 physical therapy, occupational therapy, speech therapy, rehabilitation, clinical reasoning, board exam prep, evidence-based rehab, neurorehabilitation, orthopedic rehabilitation, pediatric therapy, rehab education, therapy students, clinical cases, rehab question bank.
@@ -318,10 +417,10 @@ Requirements:
 
 JSON shape:
 {
-  "title": "SEO title here",
+  "title": "SEO title here, do not copy the source title exactly",
   "content": "<p>Intro...</p><h2>...</h2><p>...</p>",
   "meta_description": "155 character SEO meta description",
-  "focus_keyword": "rehabilitation",
+  "focus_keyword": "${topic.focus}",
   "excerpt": "Short excerpt for blog archive",
   "keywords": ["physical therapy", "rehabilitation"]
 }
@@ -352,10 +451,48 @@ ${news.source}
     return createFallbackSeoArticle(news)
   }
 
+  article.title = stripHtml(article.title).slice(0, 95)
   article.content = appendInternalLinksBlock(article.content)
+  article.meta_description = stripHtml(article.meta_description || "").slice(0, 160)
+  article.excerpt = stripHtml(article.excerpt || "").slice(0, 220)
+  article.focus_keyword = article.focus_keyword || topic.focus
   article.keywords = Array.isArray(article.keywords) ? article.keywords : []
 
+ if (!article.keywords || !article.keywords.length) {
+  article.keywords = createFallbackSeoArticle(news).keywords ?? [
+    "physical therapy",
+    "occupational therapy",
+    "speech therapy",
+    "rehabilitation",
+    "clinical reasoning",
+    "board exam prep",
+    "evidence-based rehab",
+    "rehab education",
+  ]
+}
+
   return article
+}
+
+async function makeUniqueSlug(supabase: ReturnType<typeof getSupabaseAdmin>, articleTitle: string, news: NewsItem) {
+  const sourcePart = news.source_id || hashString(news.link || news.title)
+  const baseSlug = slugify(articleTitle)
+  const cleanSourcePart = slugify(sourcePart).slice(0, 24) || hashString(news.title)
+  let slug = `${baseSlug}-${cleanSourcePart}`
+
+  for (let i = 0; i < 5; i++) {
+    const { data: existing } = await supabase
+      .from("blog_posts")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle()
+
+    if (!existing) return slug
+
+    slug = `${baseSlug}-${cleanSourcePart}-${i + 2}`
+  }
+
+  return `${baseSlug}-${cleanSourcePart}-${Date.now()}`
 }
 
 export async function GET(req: NextRequest) {
@@ -382,7 +519,6 @@ export async function GET(req: NextRequest) {
 
     if (!newsItems.length) {
       newsItems = fallbackTopics()
-
       sourceDebug.push({
         source: "RehabPearls Editorial Fallback",
         count: newsItems.length,
@@ -391,13 +527,29 @@ export async function GET(req: NextRequest) {
     }
 
     const uniqueNews = Array.from(
-      new Map(newsItems.map((item) => [item.title, item])).values()
+      new Map(newsItems.map((item) => [item.link || item.title, item])).values()
     )
 
     const results = []
     const skipped = []
 
-    for (const news of uniqueNews.slice(0, 1)) {
+    for (const news of uniqueNews.slice(0, MAX_POSTS_PER_RUN)) {
+      const sourceKey = news.source_id || news.link || news.title
+
+      const { data: alreadyImported } = await supabase
+        .from("blog_posts")
+        .select("id")
+        .contains("source_urls", [news.link])
+        .maybeSingle()
+
+      if (alreadyImported) {
+        skipped.push({
+          title: news.title,
+          reason: "source already imported",
+        })
+        continue
+      }
+
       const article = await generateArticle(news)
 
       if (!article?.title || !article?.content) {
@@ -408,22 +560,7 @@ export async function GET(req: NextRequest) {
         continue
       }
 
-      const baseSlug = slugify(article.title)
-      const slug = `${baseSlug}-${new Date().toISOString().slice(0, 10)}`
-
-      const { data: existing } = await supabase
-        .from("blog_posts")
-        .select("id")
-        .eq("slug", slug)
-        .maybeSingle()
-
-      if (existing) {
-        skipped.push({
-          title: article.title,
-          reason: "already exists",
-        })
-        continue
-      }
+      const slug = await makeUniqueSlug(supabase, article.title, news)
 
       const { data, error } = await supabase
         .from("blog_posts")
@@ -453,6 +590,8 @@ export async function GET(req: NextRequest) {
       }
 
       results.push(data)
+
+      await sleep(1200)
     }
 
     return NextResponse.json({
