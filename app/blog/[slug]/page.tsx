@@ -170,13 +170,12 @@ export default async function BlogPostPage({
 
       <style>{`
         .rp-blog-main {
-          min-height: 100vh;
-          background:
-            radial-gradient(circle at 12% 0%, rgba(99,102,241,.16), transparent 34%),
-            radial-gradient(circle at 88% 16%, rgba(6,182,212,.10), transparent 30%),
-            #0B1020;
-          color: #F8FAFC;
-        }
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(99,102,241,.08), transparent 30%),
+    linear-gradient(to bottom, #f8fafc, #ffffff);
+  color: #111827;
+}
 
         .rp-article {
           max-width: 980px;
@@ -246,7 +245,7 @@ export default async function BlogPostPage({
         }
 
         .rp-content-card {
-          background: rgba(18,25,43,.88);
+          background: #ffffff;
           border: 1px solid rgba(148,163,184,.16);
           border-radius: 28px;
           padding: 46px 42px;
@@ -256,7 +255,7 @@ export default async function BlogPostPage({
         .blog-content {
           max-width: 780px;
           margin: 0 auto;
-          color: #E2E8F0;
+         color: #374151;
         }
 
         .blog-content h2 {
@@ -266,7 +265,7 @@ export default async function BlogPostPage({
           margin: 48px 0 18px;
           padding-top: 26px;
           border-top: 1px solid rgba(148,163,184,.14);
-          color: #FFFFFF;
+         color: #111827;
         }
 
         .blog-content h2:first-child {
@@ -293,7 +292,7 @@ export default async function BlogPostPage({
         .blog-content ul {
           margin: 20px 0 30px;
           padding: 20px 24px 20px 44px;
-          background: rgba(15,23,42,.58);
+          background: #f8fafc;
           border: 1px solid rgba(148,163,184,.14);
           border-radius: 20px;
         }
@@ -404,7 +403,7 @@ export default async function BlogPostPage({
         .rp-keywords span {
           padding: 8px 12px;
           border-radius: 999px;
-          background: #12192B;
+         background: #eef2ff;
           border: 1px solid #243041;
           color: #CBD5E1;
           font-size: 13px;

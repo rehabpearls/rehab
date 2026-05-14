@@ -140,15 +140,14 @@ export default async function BlogPage() {
       </section>
 
       <style>{`
-        .rp-blog-main {
-          min-height: 100vh;
-          background:
-            radial-gradient(circle at 12% 0%, rgba(99,102,241,.16), transparent 32%),
-            radial-gradient(circle at 90% 12%, rgba(6,182,212,.10), transparent 28%),
-            #0B1020;
-          color: #F8FAFC;
-          padding: 72px 24px 96px;
-        }
+       .rp-blog-main {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(99,102,241,.08), transparent 30%),
+    linear-gradient(to bottom, #f8fafc, #ffffff);
+  color: #111827;
+  padding: 72px 24px 96px;
+}
 
         .rp-blog-hero {
           max-width: 1100px;
@@ -279,8 +278,8 @@ export default async function BlogPage() {
 
         .rp-post-card article {
           height: 100%;
-          background: rgba(18,25,43,.9);
-          border: 1px solid rgba(148,163,184,.16);
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
           border-radius: 26px;
           padding: 26px;
           box-shadow: 0 18px 44px rgba(0,0,0,.28);
@@ -318,7 +317,7 @@ export default async function BlogPage() {
         }
 
         .rp-post-card p {
-          color: #94A3B8;
+        color: #4b5563;
           line-height: 1.75;
           font-size: 16px;
           margin: 0;
