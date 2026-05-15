@@ -160,7 +160,9 @@ export default async function TopicDetailPage({ params }: TopicPageParams) {
 
           <div>
             <div className="rp-badge">
-              {topic.topic_groups?.name || "Rehab Topic"}
+              {Array.isArray(topic.topic_groups)
+  ? topic.topic_groups[0]?.name || "Rehab Topic"
+  : topic.topic_groups?.name || "Rehab Topic"}
             </div>
 
             <h1>{topic.name}</h1>
