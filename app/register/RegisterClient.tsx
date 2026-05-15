@@ -182,7 +182,25 @@ export default function RegisterClient() {
               radial-gradient(circle at top, rgba(79, 70, 229, 0.12), transparent 35%),
               #ffffff;
           }
+.rp-auth-brand-full {
+  width: 220px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22));
+}
 
+.rp-card-brand {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 24px;
+  text-decoration: none;
+}
+
+.rp-card-brand img {
+  width: 210px;
+  height: auto;
+  object-fit: contain;
+}
           .rp-auth-spinner {
             width: 34px;
             height: 34px;
@@ -834,13 +852,12 @@ export default function RegisterClient() {
         <div className="rp-auth-orb-one" />
         <div className="rp-auth-orb-two" />
 
-       <Link href="/" className="rp-mobile-brand">
-  <img src="/brand/rehabpearls-logo.png" alt="RehabPearls" />
-
-  <span className="rp-mobile-brand-text">
-    <strong>RehabPearls</strong>
-    <em>Clinical QBank</em>
-  </span>
+       <Link href="/" className="rp-auth-brand">
+  <img
+    src="/brand/rehabpearls-logo.png"
+    alt="RehabPearls Clinical QBank"
+    className="rp-auth-brand-full"
+  />
 </Link>
 
         <div className="rp-auth-story">
@@ -899,14 +916,12 @@ export default function RegisterClient() {
 
       <section className="rp-auth-right" aria-label="Create your RehabPearls account">
         <div className="rp-auth-card">
-          <Link href="/" className="rp-mobile-brand">
-            <img src="/brand/rehabpearls-logo.png" alt="RehabPearls" />
-
-            <span>
-              <strong>RehabPearls</strong>
-              <span>Clinical QBank</span>
-            </span>
-          </Link>
+          <Link href="/" className="rp-card-brand">
+  <img
+    src="/brand/rehabpearls-logo.png"
+    alt="RehabPearls Clinical QBank"
+  />
+</Link>
 
           <h2>Create your account</h2>
 
