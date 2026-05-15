@@ -337,11 +337,77 @@ export default function Header() {
       </header>
 
       <style>{`
-        @media (max-width: 768px) {
-          nav { display: none !important; }
-          .mob-menu-btn { display: flex !important; }
-        }
-      `}</style>
+  @media (max-width: 768px) {
+    header {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    header > div {
+      max-width: 100% !important;
+      height: 68px !important;
+      padding: 0 14px !important;
+      gap: 10px !important;
+    }
+
+    nav {
+      display: none !important;
+    }
+
+    .mob-menu-btn {
+      display: flex !important;
+      flex-shrink: 0 !important;
+    }
+
+    header a[aria-label="RehabPearls Clinical QBank home"] {
+      min-width: 0 !important;
+      gap: 8px !important;
+      flex: 1 !important;
+      overflow: hidden !important;
+    }
+
+    header a[aria-label="RehabPearls Clinical QBank home"] img {
+      width: 38px !important;
+      height: 38px !important;
+      flex-shrink: 0 !important;
+    }
+
+    header a[aria-label="RehabPearls Clinical QBank home"] span:first-child {
+      font-size: 22px !important;
+      letter-spacing: -0.05em !important;
+    }
+
+    header a[aria-label="RehabPearls Clinical QBank home"] span:last-child {
+      font-size: 8.5px !important;
+      letter-spacing: 0.28em !important;
+      margin-top: 4px !important;
+    }
+
+    header a[href="/login"] {
+      display: none !important;
+    }
+
+    header a[href="/register"] {
+      padding: 9px 12px !important;
+      font-size: 12px !important;
+      border-radius: 10px !important;
+      white-space: nowrap !important;
+      max-width: 132px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+
+  @media (max-width: 420px) {
+    header a[href="/register"] {
+      display: none !important;
+    }
+
+    header a[aria-label="RehabPearls Clinical QBank home"] span:first-child {
+      font-size: 21px !important;
+    }
+  }
+`}</style>
     </>
   )
 }
