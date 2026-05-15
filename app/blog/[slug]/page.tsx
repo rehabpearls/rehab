@@ -40,6 +40,7 @@ export async function generateMetadata({
 
 function formatDate(value?: string | null) {
   if (!value) return "RehabPearls"
+
   try {
     return new Intl.DateTimeFormat("en", {
       month: "long",
@@ -52,8 +53,25 @@ function formatDate(value?: string | null) {
 }
 
 function readingTime(html: string) {
-  const words = html.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length
+  const words = html
+    .replace(/<[^>]+>/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length
+
   return Math.max(3, Math.ceil(words / 220))
+}
+
+function getPrimaryTopic(keywords?: string[] | null) {
+  const list = Array.isArray(keywords) ? keywords.join(" ").toLowerCase() : ""
+
+  if (list.includes("pediatric")) return "Pediatric Therapy"
+  if (list.includes("orthopedic")) return "Orthopedic Rehab"
+  if (list.includes("neuro")) return "Neuro Rehab"
+  if (list.includes("speech")) return "Speech Therapy"
+  if (list.includes("occupational")) return "Occupational Therapy"
+  if (list.includes("physical")) return "Physical Therapy"
+
+  return "Rehab Education"
 }
 
 export default async function BlogPostPage({
@@ -120,6 +138,7 @@ export default async function BlogPostPage({
 
   const contentHtml = String(post.content || "")
   const minutes = readingTime(contentHtml)
+  const topic = getPrimaryTopic(post.keywords)
 
   return (
     <main className="rp-blog-main">
@@ -137,6 +156,7 @@ export default async function BlogPostPage({
         <div className="rp-shell">
           <div className="rp-article-kicker">
             <Link href="/blog">← Back to Blog</Link>
+            <span>{topic}</span>
             <span>Rehab Education Article</span>
           </div>
 
@@ -160,10 +180,22 @@ export default async function BlogPostPage({
 
       <section className="rp-article-body-section">
         <div className="rp-shell rp-article-layout">
+          <article className="rp-content-card">
+            <div
+              className="blog-content"
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
+          </article>
+
           <aside className="rp-sidebar">
             <div className="rp-sidebar-card">
               <p className="rp-card-eyebrow">Study path</p>
               <h2>Continue after reading</h2>
+              <p className="rp-sidebar-copy">
+                Turn this topic into practice with board-style questions,
+                clinical cases, and guided rehab learning.
+              </p>
+
               <div className="rp-sidebar-links">
                 <Link href="/qbank">Practice QBank →</Link>
                 <Link href="/guides">Study Guides →</Link>
@@ -172,14 +204,16 @@ export default async function BlogPostPage({
                 <Link href="/cases/pediatrics">Pediatric Cases →</Link>
               </div>
             </div>
-          </aside>
 
-          <article className="rp-content-card">
-            <div
-              className="blog-content"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
-            />
-          </article>
+            <div className="rp-sidebar-note">
+              <p className="rp-card-eyebrow">For exam prep</p>
+              <strong>Read actively.</strong>
+              <span>
+                Ask what is safest, what information matters most, and what the
+                next best clinical decision should be.
+              </span>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -220,27 +254,36 @@ export default async function BlogPostPage({
         .rp-blog-main {
           min-height: 100vh;
           background:
-            radial-gradient(circle at 8% 0%, rgba(99,102,241,.12), transparent 34%),
-            radial-gradient(circle at 92% 12%, rgba(79,70,229,.08), transparent 30%),
-            linear-gradient(180deg, #f8fafc 0%, #ffffff 46%, #f8fafc 100%);
-          color: #111827;
+            radial-gradient(circle at top left, rgba(99,102,241,.08), transparent 28%),
+            radial-gradient(circle at right top, rgba(139,92,246,.06), transparent 24%),
+            linear-gradient(180deg, #fafafe 0%, #ffffff 48%, #f8fafc 100%);
+          color: #0f172a;
+          overflow-x: hidden;
           font-family: inherit;
         }
 
         .rp-shell {
-          width: min(1080px, calc(100% - 48px));
+          width: min(1180px, calc(100% - 48px));
           margin: 0 auto;
         }
 
         .rp-article-hero {
-          padding: 72px 0 44px;
-          border-bottom: 1px solid #e0e7ff;
+          padding: 86px 0 52px;
+          position: relative;
+        }
+
+        .rp-article-hero::after {
+          content: "";
+          position: absolute;
+          inset: auto 0 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(99,102,241,.18), transparent);
         }
 
         .rp-article-kicker {
           display: flex;
-          gap: 12px;
           align-items: center;
+          gap: 12px;
           flex-wrap: wrap;
           margin-bottom: 26px;
         }
@@ -250,54 +293,59 @@ export default async function BlogPostPage({
         .rp-pill-row span {
           display: inline-flex;
           align-items: center;
-          width: fit-content;
+          justify-content: center;
+          padding: 9px 15px;
           border-radius: 999px;
-          background: #eef2ff;
-          border: 1px solid #c7d2fe;
+          border: 1px solid rgba(99,102,241,.16);
+          background: rgba(255,255,255,.78);
+          backdrop-filter: blur(12px);
           color: #4f46e5;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 850;
+          letter-spacing: .02em;
           text-decoration: none;
-          padding: 8px 13px;
+          box-shadow: 0 8px 24px rgba(79,70,229,.05);
         }
 
         .rp-article-kicker a:hover {
-          background: #e0e7ff;
+          background: #eef2ff;
+          border-color: #c7d2fe;
         }
 
         .rp-article-hero h1 {
-          max-width: 960px;
-          margin: 0 0 24px;
-          color: #111827;
-          font-size: clamp(44px, 7vw, 82px);
-          line-height: .98;
-          letter-spacing: -0.075em;
+          max-width: 1000px;
+          margin: 0 0 28px;
+          font-size: clamp(54px, 7.4vw, 92px);
+          line-height: .94;
+          letter-spacing: -.078em;
           font-weight: 950;
+          color: #0f172a;
         }
 
         .rp-excerpt {
-          max-width: 820px;
-          margin: 0 0 28px;
-          color: #4b5563;
-          font-size: 20px;
-          line-height: 1.8;
+          max-width: 860px;
+          margin: 0 0 30px;
+          color: #475569;
+          font-size: 21px;
+          line-height: 1.82;
         }
 
         .rp-meta-row {
           display: flex;
           gap: 12px;
           flex-wrap: wrap;
-          margin-bottom: 22px;
+          margin-bottom: 24px;
         }
 
         .rp-meta-row span {
-          color: #6b7280;
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
+          padding: 9px 14px;
           border-radius: 999px;
-          padding: 8px 12px;
+          background: rgba(255,255,255,.82);
+          border: 1px solid #e2e8f0;
+          color: #64748b;
           font-size: 13px;
-          font-weight: 750;
+          font-weight: 760;
+          box-shadow: 0 8px 24px rgba(15,23,42,.04);
         }
 
         .rp-pill-row {
@@ -307,37 +355,40 @@ export default async function BlogPostPage({
         }
 
         .rp-article-body-section {
-          padding: 54px 0 36px;
+          padding: 46px 0 42px;
         }
 
         .rp-article-layout {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 300px;
-          gap: 28px;
+          grid-template-columns: minmax(0, 1fr) 320px;
+          gap: 34px;
           align-items: start;
         }
 
         .rp-content-card {
-          background: #ffffff;
-          border: 1px solid #e0e7ff;
-          border-radius: 32px;
-          padding: 48px;
-          box-shadow: 0 24px 70px rgba(15,23,42,.08);
+          background: rgba(255,255,255,.82);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(226,232,240,.92);
+          border-radius: 36px;
+          padding: 56px;
+          box-shadow:
+            0 20px 80px rgba(15,23,42,.065),
+            inset 0 1px 0 rgba(255,255,255,.7);
         }
 
         .blog-content {
-          color: #374151;
+          color: #334155;
         }
 
         .blog-content h2 {
-          font-size: 34px;
-          line-height: 1.16;
-          letter-spacing: -0.045em;
-          margin: 50px 0 18px;
-          padding-top: 28px;
-          border-top: 1px solid #e0e7ff;
-          color: #111827;
-          font-weight: 900;
+          margin: 64px 0 22px;
+          padding-top: 34px;
+          border-top: 1px solid #e2e8f0;
+          font-size: 40px;
+          line-height: 1.06;
+          letter-spacing: -.06em;
+          font-weight: 920;
+          color: #0f172a;
         }
 
         .blog-content h2:first-child {
@@ -347,188 +398,239 @@ export default async function BlogPostPage({
         }
 
         .blog-content h3 {
-          font-size: 24px;
-          line-height: 1.28;
-          letter-spacing: -0.025em;
-          margin: 34px 0 12px;
-          color: #3730a3;
-          font-weight: 850;
+          margin: 38px 0 14px;
+          font-size: 28px;
+          line-height: 1.18;
+          letter-spacing: -.04em;
+          color: #312e81;
+          font-weight: 860;
         }
 
         .blog-content p {
-          margin: 0 0 20px;
-          color: #374151;
-          font-size: 18px;
-          line-height: 1.95;
+          margin: 0 0 24px;
+          color: #475569;
+          font-size: 19px;
+          line-height: 2;
         }
 
         .blog-content ul {
-          margin: 24px 0 34px;
-          padding: 24px 28px 24px 46px;
-          background: #f8fafc;
-          border: 1px solid #e0e7ff;
-          border-radius: 22px;
+          margin: 28px 0 38px;
+          padding: 28px 34px 28px 48px;
+          background: linear-gradient(180deg, rgba(248,250,252,.92), rgba(255,255,255,.96));
+          border: 1px solid #e2e8f0;
+          border-radius: 26px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
         }
 
         .blog-content li {
-          margin-bottom: 12px;
-          color: #374151;
-          line-height: 1.8;
+          margin-bottom: 14px;
           font-size: 17px;
+          line-height: 1.9;
+          color: #475569;
+        }
+
+        .blog-content li:last-child {
+          margin-bottom: 0;
         }
 
         .blog-content li::marker {
           color: #4f46e5;
         }
 
+        .blog-content strong {
+          color: #0f172a;
+          font-weight: 850;
+        }
+
         .blog-content a {
           color: #4f46e5;
           font-weight: 850;
-          text-decoration: underline;
-          text-decoration-thickness: 1px;
-          text-underline-offset: 4px;
+          text-decoration: none;
+          border-bottom: 1px solid rgba(79,70,229,.24);
         }
 
-        .blog-content strong {
-          color: #111827;
-          font-weight: 850;
+        .blog-content a:hover {
+          color: #312e81;
+          border-bottom-color: rgba(49,46,129,.42);
         }
 
         .rehabpearls-internal-links {
-          margin-top: 44px !important;
-          padding: 28px !important;
-          border-radius: 24px !important;
-          background: linear-gradient(135deg, #eef2ff, #ffffff) !important;
+          margin-top: 46px !important;
+          padding: 30px !important;
+          border-radius: 26px !important;
+          background:
+            radial-gradient(circle at top left, rgba(99,102,241,.10), transparent 32%),
+            linear-gradient(135deg, #eef2ff, #ffffff) !important;
           border: 1px solid #c7d2fe !important;
           color: #374151 !important;
+          box-shadow: 0 18px 50px rgba(79,70,229,.08) !important;
         }
 
         .rehabpearls-internal-links h2 {
           border-top: 0 !important;
           padding-top: 0 !important;
           margin-top: 0 !important;
-          color: #111827 !important;
+          color: #0f172a !important;
+        }
+
+        .rehabpearls-internal-links p {
+          color: #475569 !important;
         }
 
         .rp-sidebar {
           position: sticky;
-          top: 96px;
+          top: 100px;
+          display: grid;
+          gap: 16px;
         }
 
-        .rp-sidebar-card {
-          background: #ffffff;
-          border: 1px solid #e0e7ff;
-          border-radius: 28px;
-          padding: 24px;
-          box-shadow: 0 18px 50px rgba(15,23,42,.07);
+        .rp-sidebar-card,
+        .rp-sidebar-note {
+          padding: 28px;
+          border-radius: 30px;
+          background: rgba(255,255,255,.84);
+          border: 1px solid rgba(226,232,240,.92);
+          backdrop-filter: blur(18px);
+          box-shadow: 0 18px 60px rgba(15,23,42,.065);
         }
 
         .rp-card-eyebrow {
-          margin: 0 0 10px;
+          margin: 0 0 12px;
           color: #4f46e5;
           font-size: 12px;
           font-weight: 900;
-          text-transform: uppercase;
           letter-spacing: .16em;
+          text-transform: uppercase;
         }
 
         .rp-sidebar-card h2 {
+          margin: 0 0 14px;
+          color: #0f172a;
+          font-size: 28px;
+          line-height: 1.05;
+          letter-spacing: -.05em;
+          font-weight: 920;
+        }
+
+        .rp-sidebar-copy {
           margin: 0 0 18px;
-          color: #111827;
-          font-size: 24px;
-          line-height: 1.12;
-          letter-spacing: -0.04em;
-          font-weight: 900;
+          color: #64748b;
+          line-height: 1.72;
+          font-size: 14px;
         }
 
         .rp-sidebar-links {
           display: grid;
-          gap: 10px;
+          gap: 12px;
         }
 
         .rp-sidebar-links a {
-          display: block;
-          padding: 12px 14px;
-          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 16px;
+          border-radius: 16px;
           background: #f8fafc;
-          border: 1px solid #e5e7eb;
+          border: 1px solid #e2e8f0;
           color: #4f46e5;
-          text-decoration: none;
           font-weight: 850;
+          text-decoration: none;
+          transition: transform .18s ease, background .18s ease, border-color .18s ease;
         }
 
         .rp-sidebar-links a:hover {
+          transform: translateY(-2px);
           background: #eef2ff;
           border-color: #c7d2fe;
         }
 
+        .rp-sidebar-note strong {
+          display: block;
+          color: #0f172a;
+          font-size: 18px;
+          margin-bottom: 8px;
+        }
+
+        .rp-sidebar-note span {
+          display: block;
+          color: #64748b;
+          line-height: 1.75;
+          font-size: 14px;
+        }
+
         .rp-learning-section {
-          padding: 24px 0 84px;
+          padding: 22px 0 92px;
         }
 
         .rp-learning-card {
-          padding: 34px;
-          border: 1px solid #c7d2fe;
-          border-radius: 32px;
-          background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%);
+          padding: 42px;
+          border-radius: 36px;
+          background:
+            radial-gradient(circle at top left, rgba(99,102,241,.10), transparent 30%),
+            linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          border: 1px solid rgba(199,210,254,.75);
           display: grid;
-          grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-          gap: 28px;
-          box-shadow: 0 24px 70px rgba(79,70,229,.10);
+          grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
+          gap: 34px;
+          box-shadow: 0 24px 80px rgba(79,70,229,.085);
         }
 
         .rp-learning-card h2 {
-          color: #111827;
-          font-size: 34px;
-          line-height: 1.08;
-          letter-spacing: -0.05em;
-          font-weight: 920;
-          margin: 0 0 14px;
+          margin: 0 0 16px;
+          color: #0f172a;
+          font-size: 42px;
+          line-height: 1;
+          letter-spacing: -.06em;
+          font-weight: 950;
         }
 
         .rp-learning-card p {
-          color: #4b5563;
-          line-height: 1.8;
+          color: #475569;
+          font-size: 18px;
+          line-height: 1.9;
           margin: 0;
-          font-size: 17px;
         }
 
         .rp-link-grid {
           display: grid;
-          grid-template-columns: 1fr;
-          gap: 12px;
+          gap: 14px;
         }
 
         .rp-link-grid a {
-          display: block;
-          padding: 14px 16px;
-          border-radius: 16px;
-          background: #ffffff;
-          border: 1px solid #c7d2fe;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px 18px;
+          border-radius: 18px;
+          background: rgba(255,255,255,.94);
+          border: 1px solid #dbeafe;
           color: #4f46e5;
-          text-decoration: none;
           font-weight: 850;
+          text-decoration: none;
+          transition: transform .18s ease, background .18s ease, border-color .18s ease;
         }
 
         .rp-link-grid a:hover {
+          transform: translateY(-2px);
           background: #eef2ff;
+          border-color: #c7d2fe;
         }
 
         .rp-keywords {
           display: flex;
-          gap: 10px;
           flex-wrap: wrap;
-          margin-top: 30px;
+          gap: 10px;
+          margin-top: 34px;
         }
 
         .rp-keywords span {
-          padding: 8px 12px;
+          padding: 9px 14px;
           border-radius: 999px;
           background: #eef2ff;
           border: 1px solid #c7d2fe;
-          color: #4f46e5;
+          color: #4338ca;
           font-size: 13px;
-          font-weight: 750;
+          font-weight: 800;
         }
 
         @media (max-width: 980px) {
@@ -549,39 +651,48 @@ export default async function BlogPostPage({
 
         @media (max-width: 640px) {
           .rp-shell {
-            width: min(100% - 32px, 1080px);
+            width: min(100% - 28px, 1180px);
           }
 
           .rp-article-hero {
-            padding: 56px 0 34px;
+            padding: 54px 0 30px;
           }
 
           .rp-article-hero h1 {
-            font-size: clamp(40px, 14vw, 62px);
+            font-size: clamp(42px, 15vw, 64px);
+          }
+
+          .rp-excerpt {
+            font-size: 18px;
           }
 
           .rp-content-card,
-          .rp-learning-card,
-          .rp-sidebar-card {
-            padding: 22px;
-            border-radius: 24px;
+          .rp-sidebar-card,
+          .rp-sidebar-note,
+          .rp-learning-card {
+            padding: 24px;
+            border-radius: 26px;
           }
 
           .blog-content h2 {
-            font-size: 27px;
+            font-size: 30px;
           }
 
           .blog-content h3 {
-            font-size: 22px;
+            font-size: 24px;
           }
 
           .blog-content p {
-            font-size: 16px;
-            line-height: 1.82;
+            font-size: 17px;
+            line-height: 1.85;
           }
 
           .blog-content ul {
-            padding-left: 32px;
+            padding: 24px 24px 24px 34px;
+          }
+
+          .rp-learning-card h2 {
+            font-size: 32px;
           }
         }
       `}</style>
