@@ -135,7 +135,7 @@ export default function RegisterClient() {
         data: {
           full_name: cleanName,
           profession: profession || null,
-          role: "student",
+          role: "user",
         },
       },
     })

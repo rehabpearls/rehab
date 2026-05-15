@@ -66,7 +66,10 @@ export default function Header() {
     { href: "/about",   label: "About"          },
   ]
 
-  const isActive = (href: string) => pathname.startsWith(href)
+ const isActive = (href: string) => {
+  if (href === "/") return pathname === "/"
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
   const initial  = profile?.full_name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?"
   const firstName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "You"
 
@@ -82,11 +85,39 @@ export default function Header() {
         @keyframes hdr-in  { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
         @keyframes mob-in  { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
         @keyframes drop-in { from{opacity:0;transform:translateY(6px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
-        .nav-link::after {
-          content:''; position:absolute; bottom:-2px; left:0; width:0; height:1.5px;
-          background:#4f46e5; transition:width .22s ease; border-radius:2px;
-        }
-        .nav-link:hover::after, .nav-link.active::after { width:100%; }
+      .nav-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 4px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  opacity: 0;
+  transform: scaleX(0.45);
+  transform-origin: center;
+  transition:
+    opacity .18s ease,
+    transform .18s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.nav-link.active {
+  color: #4f46e5 !important;
+  background: rgba(79, 70, 229, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.10);
+}
         .drop-item { display:flex; align-items:center; gap:10; padding:9px 14px; border-radius:9px;
           font-size:14px; font-weight:500; color:#374151; cursor:pointer;
           border:none; background:none; width:100%; text-align:left; text-decoration:none;
@@ -182,7 +213,17 @@ export default function Header() {
             {navLinks.map(({href,label})=>(
               <Link key={href} href={href}
                 className={`nav-link${isActive(href)?" active":""}`}
-                style={{position:"relative",padding:"6px 14px",fontSize:14,fontWeight:isActive(href)?600:500,color:isActive(href)?"#4f46e5":"#374151",textDecoration:"none",borderRadius:8,transition:"color .15s"}}>
+                style={{
+  position: "relative",
+  padding: "9px 16px",
+  fontSize: 14,
+  fontWeight: isActive(href) ? 800 : 650,
+  color: isActive(href) ? "#4f46e5" : "#374151",
+  textDecoration: "none",
+  borderRadius: 999,
+  transition:
+    "color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease",
+}}>
                 {label}
               </Link>
             ))}
