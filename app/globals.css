@@ -2,37 +2,57 @@
 
 /* =========================================================
    RehabPearls Global Design System
-   Clean medical SaaS / clinical education style
+   Premium medical SaaS / clinical education platform
    ========================================================= */
 
 :root {
   --background: #ffffff;
   --foreground: #111827;
 
-  --rp-navy: #111447;
+  --rp-navy: #0b1020;
+  --rp-dark: #111827;
   --rp-deep: #1e1b4b;
   --rp-indigo: #4f46e5;
+  --rp-indigo-2: #4338ca;
   --rp-violet: #7c3aed;
+  --rp-purple: #5b43f6;
   --rp-teal: #14b8a6;
+  --rp-cyan: #22d3ee;
 
   --rp-text: #111827;
+  --rp-heading: #25206f;
   --rp-muted: #64748b;
+  --rp-muted-2: #94a3b8;
+
   --rp-soft: #f8fafc;
+  --rp-soft-purple: #f5f3ff;
   --rp-card: #ffffff;
+  --rp-card-soft: #f7f7ff;
   --rp-border: #e5e7eb;
+  --rp-border-strong: #c7d2fe;
 
   --rp-hero-bg:
-    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12), transparent 38%),
+    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.13), transparent 34%),
+    radial-gradient(circle at 88% 10%, rgba(20, 184, 166, 0.08), transparent 30%),
     linear-gradient(180deg, #f5f3ff 0%, #fbfaff 48%, #ffffff 100%);
 
-  --rp-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
+  --rp-glass:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(255, 255, 255, 0.74)
+    );
+
+  --rp-shadow-xs: 0 2px 8px rgba(15, 23, 42, 0.05);
+  --rp-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.07);
   --rp-shadow-md: 0 14px 36px rgba(79, 70, 229, 0.14);
-  --rp-shadow-lg: 0 28px 80px rgba(30, 27, 75, 0.16);
+  --rp-shadow-lg: 0 28px 80px rgba(30, 27, 75, 0.18);
 
   --rp-radius-sm: 10px;
   --rp-radius-md: 16px;
   --rp-radius-lg: 24px;
   --rp-radius-xl: 32px;
+  --rp-radius-pill: 999px;
 }
 
 @theme inline {
@@ -43,7 +63,7 @@
 }
 
 /* =========================================================
-   Base reset
+   Base reset / overflow protection
    ========================================================= */
 
 *,
@@ -53,6 +73,7 @@
 }
 
 html {
+  width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -61,6 +82,7 @@ html {
 }
 
 body {
+  width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   margin: 0;
@@ -77,24 +99,27 @@ body {
     Arial,
     sans-serif;
   line-height: 1.5;
-  font-feature-settings: "kern";
+  font-feature-settings: "kern", "liga", "calt";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+#__next,
 main,
 section,
 header,
 footer,
 nav,
-article {
+article,
+aside {
   max-width: 100%;
 }
 
 img,
 svg,
 video,
-canvas {
+canvas,
+iframe {
   max-width: 100%;
 }
 
@@ -104,6 +129,8 @@ img {
 
 a {
   color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 button,
@@ -113,8 +140,13 @@ select {
   font: inherit;
 }
 
-button {
+button,
+a {
   -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
 }
 
 ::selection {
@@ -123,7 +155,7 @@ button {
 }
 
 /* =========================================================
-   Professional typography
+   Typography
    ========================================================= */
 
 h1,
@@ -132,17 +164,28 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--rp-deep);
+  color: var(--rp-heading);
   letter-spacing: -0.045em;
   text-wrap: balance;
+  margin-top: 0;
+}
+
+h1 {
+  font-weight: 900;
+}
+
+h2,
+h3 {
+  font-weight: 850;
 }
 
 p {
   text-wrap: pretty;
 }
 
-strong {
-  font-weight: 800;
+strong,
+b {
+  font-weight: 850;
 }
 
 /* =========================================================
@@ -167,72 +210,230 @@ strong {
   margin-inline: auto;
 }
 
+.rp-section {
+  padding: 96px 0;
+}
+
+.rp-section-soft {
+  background:
+    radial-gradient(circle at top, rgba(99, 102, 241, 0.08), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
 .rp-card {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--rp-glass);
   border: 1px solid rgba(226, 232, 240, 0.95);
   border-radius: var(--rp-radius-lg);
   box-shadow: var(--rp-shadow-sm);
   backdrop-filter: blur(14px);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .rp-card:hover {
-  border-color: rgba(99, 102, 241, 0.28);
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.32);
   box-shadow: var(--rp-shadow-md);
 }
 
-.rp-button-primary {
+/* =========================================================
+   Buttons
+   ========================================================= */
+
+.rp-button-primary,
+.rp-button-secondary,
+.rp-button-ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 48px;
-  padding: 12px 22px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--rp-indigo), var(--rp-violet));
-  color: #ffffff;
-  font-weight: 800;
+  min-height: 50px;
+  padding: 13px 24px;
+  border-radius: 13px;
+  font-weight: 850;
+  letter-spacing: -0.015em;
   text-decoration: none;
-  border: 0;
-  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.28);
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
     filter 0.18s ease;
+}
+
+.rp-button-primary {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--rp-indigo), var(--rp-violet));
+  border: 0;
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.28);
 }
 
 .rp-button-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 36px rgba(79, 70, 229, 0.34);
-  filter: saturate(1.05);
+  box-shadow: 0 18px 42px rgba(79, 70, 229, 0.36);
+  filter: saturate(1.06);
+}
+
+.rp-button-primary *,
+.rp-button-primary span,
+.rp-button-primary strong {
+  color: #ffffff !important;
 }
 
 .rp-button-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 22px;
-  border-radius: 12px;
-  color: var(--rp-indigo);
-  font-weight: 800;
-  text-decoration: none;
-  border: 1.5px solid rgba(79, 70, 229, 0.82);
-  background: rgba(255, 255, 255, 0.62);
-  transition:
-    background 0.18s ease,
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
+  color: var(--rp-indigo) !important;
+  border: 1.5px solid rgba(79, 70, 229, 0.78);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .rp-button-secondary:hover {
   background: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.12);
+}
+
+.rp-button-ghost {
+  color: var(--rp-deep);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.rp-button-ghost:hover {
+  background: #ffffff;
+  box-shadow: var(--rp-shadow-sm);
+}
+
+/* Fix inline-style gradient buttons across old pages */
+button[style*="linear-gradient"],
+a[style*="linear-gradient"],
+button[style*="#4f46e5"],
+a[style*="#4f46e5"],
+button[style*="#7c3aed"],
+a[style*="#7c3aed"],
+button[style*="rgb(79, 70, 229)"],
+a[style*="rgb(79, 70, 229)"] {
+  color: #ffffff !important;
+}
+
+button[style*="linear-gradient"] *,
+a[style*="linear-gradient"] *,
+button[style*="#4f46e5"] *,
+a[style*="#4f46e5"] *,
+button[style*="#7c3aed"] *,
+a[style*="#7c3aed"] * {
+  color: #ffffff !important;
 }
 
 /* =========================================================
-   Mobile fixes
+   Header polish
    ========================================================= */
+
+header {
+  isolation: isolate;
+}
+
+header a {
+  text-decoration: none;
+}
+
+/* =========================================================
+   Footer polish
+   ========================================================= */
+
+footer {
+  background:
+    radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30%),
+    linear-gradient(180deg, #111827 0%, #0b1020 100%) !important;
+  color: #cbd5e1 !important;
+}
+
+footer h1,
+footer h2,
+footer h3,
+footer h4,
+footer strong {
+  color: #ffffff !important;
+}
+
+footer p,
+footer span,
+footer li {
+  color: #cbd5e1 !important;
+}
+
+footer a {
+  color: #dbeafe !important;
+  text-decoration: none;
+  transition:
+    color 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+footer a:hover {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+footer [style*="#1e1b4b"],
+footer [style*="#111827"],
+footer [style*="#374151"] {
+  color: #cbd5e1 !important;
+}
+
+/* =========================================================
+   Floating CTA polish
+   ========================================================= */
+
+.floating-cta,
+.sticky-cta,
+.get-free-access-floating,
+a[href="/register"][style*="position: fixed"],
+button[style*="position: fixed"] {
+  color: #ffffff !important;
+  z-index: 40 !important;
+  box-shadow: 0 18px 44px rgba(79, 70, 229, 0.35) !important;
+}
+
+.floating-cta *,
+.sticky-cta *,
+.get-free-access-floating * {
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   Forms
+   ========================================================= */
+
+input,
+textarea,
+select {
+  border-radius: 12px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 3px solid rgba(79, 70, 229, 0.18);
+  border-color: rgba(79, 70, 229, 0.45);
+}
+
+/* =========================================================
+   Mobile responsive system
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  .rp-container {
+    width: min(100% - 36px, 100%);
+  }
+
+  .rp-section {
+    padding: 76px 0;
+  }
+}
 
 @media (max-width: 768px) {
   html,
@@ -246,15 +447,25 @@ strong {
     width: min(100% - 28px, 100%);
   }
 
+  .rp-section {
+    padding: 64px 0;
+  }
+
   h1 {
-    font-size: clamp(42px, 11vw, 60px) !important;
-    line-height: 1.05 !important;
+    font-size: clamp(42px, 11vw, 58px) !important;
+    line-height: 1.06 !important;
     letter-spacing: -0.065em !important;
   }
 
   h2 {
     font-size: clamp(28px, 8vw, 42px) !important;
     line-height: 1.12 !important;
+    letter-spacing: -0.055em !important;
+  }
+
+  h3 {
+    font-size: clamp(22px, 6vw, 30px) !important;
+    line-height: 1.16 !important;
   }
 
   p {
@@ -268,7 +479,8 @@ strong {
   }
 
   .rp-button-primary,
-  .rp-button-secondary {
+  .rp-button-secondary,
+  .rp-button-ghost {
     width: 100%;
     min-height: 54px;
     font-size: 16px;
@@ -277,22 +489,34 @@ strong {
 
   .floating-cta,
   .sticky-cta,
-  .get-free-access-floating {
+  .get-free-access-floating,
+  a[href="/register"][style*="position: fixed"],
+  button[style*="position: fixed"] {
     right: 14px !important;
-    bottom: 18px !important;
+    bottom: 16px !important;
     max-width: calc(100vw - 28px) !important;
+    min-height: 48px !important;
     padding: 12px 18px !important;
     font-size: 14px !important;
+    border-radius: 999px !important;
+  }
+
+  footer {
+    padding-bottom: 96px !important;
   }
 }
 
 @media (max-width: 430px) {
-  h1 {
-    font-size: clamp(40px, 12vw, 54px) !important;
-  }
-
   .rp-container {
     width: min(100% - 24px, 100%);
+  }
+
+  h1 {
+    font-size: clamp(38px, 12vw, 52px) !important;
+  }
+
+  h2 {
+    font-size: clamp(26px, 8vw, 36px) !important;
   }
 }
 
@@ -301,7 +525,7 @@ strong {
    ========================================================= */
 
 :focus-visible {
-  outline: 3px solid rgba(79, 70, 229, 0.35);
+  outline: 3px solid rgba(79, 70, 229, 0.32);
   outline-offset: 3px;
   border-radius: 8px;
 }
@@ -314,5 +538,24 @@ strong {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* =========================================================
+   Print
+   ========================================================= */
+
+@media print {
+  header,
+  footer,
+  .floating-cta,
+  .sticky-cta,
+  .get-free-access-floating {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
   }
 }
