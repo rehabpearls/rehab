@@ -107,27 +107,74 @@ export default function Header() {
         animation:"hdr-in .35s ease both",
         fontFamily:"var(--font-sans),system-ui,sans-serif",
       }}>
-        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px",height:72,display:"flex",alignItems:"center",justifyContent:"space-between",gap:24}}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px",height:78,display:"flex",alignItems:"center",justifyContent:"space-between",gap:24}}>
 {/* LOGO */}
 <Link
   href="/"
+  aria-label="RehabPearls Clinical QBank home"
   style={{
     display: "flex",
     alignItems: "center",
-    gap: 14,
+    gap: 12,
     textDecoration: "none",
+    flexShrink: 0,
+    transition: "transform .18s ease",
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-1px)"
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)"
   }}
 >
- <img
-  src="/brand/rehabpearls-logo.png"
-  alt="RehabPearls Clinical QBank"
-  style={{
-    height: 42,
-    width: "auto",
-    objectFit: "contain",
-    display: "block",
-  }}
-/>
+  <img
+    src="/favicon-512.png"
+    alt="RehabPearls pearl shell logo"
+    style={{
+      width: 54,
+      height: 54,
+      objectFit: "contain",
+      display: "block",
+      filter: "drop-shadow(0 8px 16px rgba(79,70,229,.18))",
+    }}
+  />
+
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      lineHeight: 1,
+    }}
+  >
+    <span
+      style={{
+        fontSize: 30,
+        fontWeight: 900,
+        letterSpacing: "-0.055em",
+        background:
+          "linear-gradient(90deg,#1E1B4B 0%, #312E81 42%, #5B43F6 100%)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        whiteSpace: "nowrap",
+      }}
+    >
+      RehabPearls
+    </span>
+
+    <span
+      style={{
+        fontSize: 11,
+        fontWeight: 900,
+        letterSpacing: "0.36em",
+        color: "#14B8A6",
+        marginTop: 6,
+        textTransform: "uppercase",
+        whiteSpace: "nowrap",
+      }}
+    >
+      Clinical QBank
+    </span>
+  </div>
 </Link>
 
           {/* NAV */}
