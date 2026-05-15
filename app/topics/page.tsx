@@ -27,10 +27,16 @@ type Topic = {
   seo_description: string | null
   icon: string | null
   order_index: number | null
-  topic_groups?: {
-    name: string
-    slug: string
-  } | null
+topic_groups?:
+  | {
+      name: string
+      slug: string
+    }
+  | {
+      name: string
+      slug: string
+    }[]
+  | null
 }
 
 export default async function TopicsPage() {
@@ -56,7 +62,7 @@ export default async function TopicsPage() {
     .order("order_index", { ascending: true })
     .order("name", { ascending: true })
 
-  const topicList = (topics || []) as Topic[]
+  const topicList = ((topics || []) as unknown) as Topic[]
 
   const schema = {
     "@context": "https://schema.org",
@@ -139,7 +145,9 @@ export default async function TopicsPage() {
                   </div>
 
                   <span>
-                    {topic.topic_groups?.name || "Rehab Topic"}
+                   {Array.isArray(topic.topic_groups)
+  ? topic.topic_groups[0]?.name || "Rehab Topic"
+  : topic.topic_groups?.name || "Rehab Topic"}
                   </span>
                 </div>
 
