@@ -559,3 +559,22 @@ select:focus {
     color: #000000 !important;
   }
 }
+@media (max-width: 768px) {
+  .floating-cta,
+  .sticky-cta,
+  .get-free-access-floating {
+    transform: scale(0.92);
+    transform-origin: right bottom;
+    bottom: 18px !important;
+    right: 10px !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .floating-cta,
+  .sticky-cta,
+  .get-free-access-floating {
+    display: none !important;
+  }
+}

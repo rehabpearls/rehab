@@ -298,49 +298,107 @@ export default function Header() {
           </div>
         </div>
 
-        {/* MOBILE MENU */}
-        {menuOpen && (
-          <div style={{borderTop:"1px solid #f0f0f0",padding:"12px 24px 20px",background:"#fff",animation:"mob-in .2s ease"}}>
-            {navLinks.map(({href,label})=>(
-              <Link key={href} href={href} onClick={()=>setMenuOpen(false)}
-                style={{display:"block",padding:"11px 0",fontSize:15,fontWeight:500,color:isActive(href)?"#4f46e5":"#374151",textDecoration:"none",borderBottom:"1px solid #f9f9f9"}}>
-                {label}
-              </Link>
-            ))}
-            <div style={{marginTop:16,display:"flex",gap:10}}>
-              {user ? (
-                <>
-                  <Link href="/dashboard" onClick={()=>setMenuOpen(false)}
-                    style={{flex:1,textAlign:"center",padding:"10px",background:"#f3f4f6",borderRadius:9,fontSize:14,fontWeight:600,color:"#374151",textDecoration:"none"}}>
-                    Dashboard
-                  </Link>
-                  <button onClick={handleLogout}
-                    style={{flex:1,padding:"10px",background:"#fff1f2",border:"1px solid #fecaca",borderRadius:9,fontSize:14,fontWeight:600,color:"#ef4444",cursor:"pointer"}}>
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" onClick={()=>setMenuOpen(false)}
-                    style={{flex:1,textAlign:"center",padding:"10px",background:"#f3f4f6",borderRadius:9,fontSize:14,fontWeight:600,color:"#374151",textDecoration:"none"}}>
-                    Log in
-                  </Link>
-                  <Link href="/register" onClick={()=>setMenuOpen(false)}
-                    style={{flex:1,textAlign:"center",padding:"10px",background:"linear-gradient(135deg,#4f46e5,#7c3aed)",borderRadius:9,fontSize:14,fontWeight:600,color:"#fff",textDecoration:"none"}}>
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
+       {/* MOBILE MENU */}
+{menuOpen && (
+  <>
+    <div
+      onClick={() => setMenuOpen(false)}
+      className="rp-mobile-backdrop"
+    />
+
+    <div className="rp-mobile-menu">
+      <div className="rp-mobile-menu-inner">
+        <div className="rp-mobile-menu-head">
+          <div>
+            <strong>Menu</strong>
+            <span>RehabPearls navigation</span>
           </div>
-        )}
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            className="rp-mobile-close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="rp-mobile-links">
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              className={`rp-mobile-link ${isActive(href) ? "active" : ""}`}
+            >
+              <span>{label}</span>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </Link>
+          ))}
+        </div>
+
+        <div className="rp-mobile-actions">
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="rp-mobile-primary"
+              >
+                Open Dashboard
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rp-mobile-secondary danger"
+              >
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/register"
+                onClick={() => setMenuOpen(false)}
+                className="rp-mobile-primary"
+              >
+                Start Free Trial
+              </Link>
+
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="rp-mobile-secondary"
+              >
+                Log in
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  </>
+)}
       </header>
 
       <style>{`
   @media (max-width: 768px) {
     header {
       width: 100%;
-      overflow-x: hidden;
+      overflow: visible;
     }
 
     header > div {
@@ -356,13 +414,21 @@ export default function Header() {
 
     .mob-menu-btn {
       display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       flex-shrink: 0 !important;
+      width: 42px !important;
+      height: 42px !important;
+      border-radius: 12px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e5e7eb !important;
+      color: #111827 !important;
     }
 
     header a[aria-label="RehabPearls Clinical QBank home"] {
       min-width: 0 !important;
-      gap: 8px !important;
       flex: 1 !important;
+      gap: 8px !important;
       overflow: hidden !important;
     }
 
@@ -374,7 +440,7 @@ export default function Header() {
 
     header a[aria-label="RehabPearls Clinical QBank home"] span:first-child {
       font-size: 22px !important;
-      letter-spacing: -0.05em !important;
+      letter-spacing: -0.055em !important;
     }
 
     header a[aria-label="RehabPearls Clinical QBank home"] span:last-child {
@@ -388,11 +454,11 @@ export default function Header() {
     }
 
     header a[href="/register"] {
-      padding: 9px 12px !important;
+      padding: 9px 13px !important;
       font-size: 12px !important;
-      border-radius: 10px !important;
+      border-radius: 12px !important;
       white-space: nowrap !important;
-      max-width: 132px !important;
+      max-width: 138px !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
     }
@@ -402,10 +468,136 @@ export default function Header() {
     header a[href="/register"] {
       display: none !important;
     }
+  }
 
-    header a[aria-label="RehabPearls Clinical QBank home"] span:first-child {
-      font-size: 21px !important;
-    }
+  .rp-mobile-backdrop {
+    position: fixed;
+    inset: 68px 0 0 0;
+    z-index: 80;
+    background: rgba(15, 23, 42, 0.28);
+    backdrop-filter: blur(8px);
+    animation: mob-in .18s ease both;
+  }
+
+  .rp-mobile-menu {
+    position: fixed;
+    top: 76px;
+    left: 12px;
+    right: 12px;
+    z-index: 90;
+    animation: mob-in .2s ease both;
+  }
+
+  .rp-mobile-menu-inner {
+    overflow: hidden;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.24);
+    backdrop-filter: blur(18px);
+  }
+
+  .rp-mobile-menu-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 18px 14px;
+    border-bottom: 1px solid #eef2ff;
+  }
+
+  .rp-mobile-menu-head strong {
+    display: block;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  .rp-mobile-menu-head span {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .rp-mobile-close {
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 14px;
+    background: #f1f5f9;
+    color: #111827;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .rp-mobile-links {
+    display: grid;
+    padding: 8px;
+  }
+
+  .rp-mobile-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px 14px;
+    border-radius: 16px;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 800;
+    border: 1px solid transparent;
+  }
+
+  .rp-mobile-link.active {
+    color: #4f46e5;
+    background: #eef2ff;
+    border-color: #c7d2fe;
+  }
+
+  .rp-mobile-link:hover {
+    background: #f8fafc;
+  }
+
+  .rp-mobile-actions {
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px 18px;
+    border-top: 1px solid #eef2ff;
+  }
+
+  .rp-mobile-primary,
+  .rp-mobile-secondary {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 900;
+  }
+
+  .rp-mobile-primary {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 16px 34px rgba(79, 70, 229, 0.32);
+  }
+
+  .rp-mobile-secondary {
+    color: #374151;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+  }
+
+  .rp-mobile-secondary.danger {
+    color: #ef4444;
+    background: #fff1f2;
+    border: 1px solid #fecaca;
   }
 `}</style>
     </>
