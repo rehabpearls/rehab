@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
 
 export const metadata = {
   title: "Rehab Topics: Neuro, Ortho, PT, OT & SLP Study Tracks | RehabPearls",
@@ -40,7 +40,10 @@ topic_groups?:
 }
 
 export default async function TopicsPage() {
-  const supabase = await createClient()
+ const supabase = createClient(
+  process.env["NEXT_PUBLIC_SUPABASE_URL"]!,
+  process.env["SUPABASE_SERVICE_ROLE_KEY"]!
+)
 
   const { data: topics } = await supabase
     .from("topics")
