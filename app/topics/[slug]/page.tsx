@@ -71,7 +71,10 @@ export default async function TopicDetailPage({ params }: TopicPageParams) {
     .single()
 
   if (!topic) notFound()
-
+const topicAny = topic as any
+const topicGroupName = Array.isArray(topicAny.topic_groups)
+  ? topicAny.topic_groups[0]?.name || "Rehab Topic"
+  : topicAny.topic_groups?.name || "Rehab Topic"
   const [{ data: childTopics }, { data: linkedQuestions }, { data: linkedBlogs }] =
     await Promise.all([
       supabase
@@ -159,11 +162,9 @@ export default async function TopicDetailPage({ params }: TopicPageParams) {
           <div className="rp-topic-icon">{topic.icon || getTopicIcon(topic.name)}</div>
 
           <div>
-            <div className="rp-badge">
-              {Array.isArray(topic.topic_groups)
-  ? topic.topic_groups[0]?.name || "Rehab Topic"
-  : topic.topic_groups?.name || "Rehab Topic"}
-            </div>
+          <div className="rp-badge">
+  {topicGroupName}
+</div>
 
             <h1>{topic.name}</h1>
 
