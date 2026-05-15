@@ -578,3 +578,84 @@ select:focus {
     display: none !important;
   }
 }
+/* =========================================================
+   Dark / Gradient Hero Text Contrast Fix
+   Makes headings readable on purple, indigo, dark and gradient sections
+   ========================================================= */
+
+section[style*="#4f46e5"] h1,
+section[style*="#4f46e5"] h2,
+section[style*="#4f46e5"] h3,
+section[style*="#4338ca"] h1,
+section[style*="#4338ca"] h2,
+section[style*="#4338ca"] h3,
+section[style*="#7c3aed"] h1,
+section[style*="#7c3aed"] h2,
+section[style*="#7c3aed"] h3,
+section[style*="linear-gradient"] h1,
+section[style*="linear-gradient"] h2,
+section[style*="linear-gradient"] h3,
+div[style*="linear-gradient"] h1,
+div[style*="linear-gradient"] h2,
+div[style*="linear-gradient"] h3,
+.rp-dark-section h1,
+.rp-dark-section h2,
+.rp-dark-section h3,
+.rp-gradient-section h1,
+.rp-gradient-section h2,
+.rp-gradient-section h3,
+.rp-hero-dark h1,
+.rp-hero-dark h2,
+.rp-hero-dark h3 {
+  color: #ffffff !important;
+  text-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+}
+
+section[style*="#4f46e5"] p,
+section[style*="#4338ca"] p,
+section[style*="#7c3aed"] p,
+section[style*="linear-gradient"] p,
+div[style*="linear-gradient"] p,
+.rp-dark-section p,
+.rp-gradient-section p,
+.rp-hero-dark p {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+section[style*="#4f46e5"] span,
+section[style*="#4338ca"] span,
+section[style*="#7c3aed"] span,
+section[style*="linear-gradient"] span,
+div[style*="linear-gradient"] span,
+.rp-dark-section span,
+.rp-gradient-section span,
+.rp-hero-dark span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Stats / numbers on gradient hero sections */
+section[style*="#4f46e5"] strong,
+section[style*="#4338ca"] strong,
+section[style*="#7c3aed"] strong,
+section[style*="linear-gradient"] strong,
+div[style*="linear-gradient"] strong,
+.rp-dark-section strong,
+.rp-gradient-section strong,
+.rp-hero-dark strong {
+  color: #ffffff !important;
+}
+
+/* Keep purple stats readable on white backgrounds */
+.rp-stat-number,
+.rp-metric-number {
+  color: #4f46e5 !important;
+}
+
+/* Better universal gradient hero look */
+.rp-gradient-section,
+.rp-hero-dark {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.13), transparent 34%),
+    radial-gradient(circle at 85% 20%, rgba(20, 184, 166, 0.12), transparent 28%),
+    linear-gradient(135deg, #312e81 0%, #4f46e5 46%, #7c3aed 100%) !important;
+}

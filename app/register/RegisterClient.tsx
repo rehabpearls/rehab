@@ -100,32 +100,33 @@ export default function RegisterClient() {
     }
   }
 
-  async function handleEmailRegister(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+ async function handleEmailRegister(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault()
 
-    setError("")
-    setSuccess("")
+  setError("")
+  setSuccess("")
 
-    const cleanName = fullName.trim()
-    const cleanEmail = email.trim().toLowerCase()
+  const cleanName = fullName.trim()
+  const cleanEmail = email.trim().toLowerCase()
 
-    if (!cleanName) {
-      setError("Please enter your full name.")
-      return
-    }
+  if (!cleanName) {
+    setError("Please enter your full name.")
+    return
+  }
 
-    if (!cleanEmail) {
-      setError("Please enter your email address.")
-      return
-    }
+  if (!cleanEmail) {
+    setError("Please enter your email address.")
+    return
+  }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.")
-      return
-    }
+  if (password.length < 8) {
+    setError("Password must be at least 8 characters.")
+    return
+  }
 
-    setLoadingEmail(true)
+  setLoadingEmail(true)
 
+  try {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: cleanEmail,
       password,
@@ -134,32 +135,38 @@ export default function RegisterClient() {
         data: {
           full_name: cleanName,
           profession: profession || null,
+          role: "student",
         },
       },
     })
 
     if (signUpError) {
       setError(signUpError.message)
-      setLoadingEmail(false)
       return
     }
 
-    if (data.user) {
-      await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: cleanName,
-        profession: profession || null,
-        role: "student",
-        updated_at: new Date().toISOString(),
-      })
+    /**
+     * Important:
+     * Do NOT upsert profiles here.
+     * Supabase RLS often blocks anonymous/client profile inserts.
+     * Save profile data in auth metadata first.
+     * Create/update the profile later in onboarding or with a DB trigger.
+     */
+    if (data.user && data.session) {
+      router.replace("/onboarding")
+      return
     }
 
     setSuccess(
-      "Account created. Check your email to confirm your account, then continue to onboarding."
+      "Account created. Please check your email to confirm your account, then sign in and continue onboarding."
     )
-
+  } catch (err) {
+    console.error("EMAIL REGISTER ERROR:", err)
+    setError("Something went wrong while creating your account. Please try again.")
+  } finally {
     setLoadingEmail(false)
   }
+}
 
   if (checking) {
     return (
@@ -275,8 +282,8 @@ export default function RegisterClient() {
         }
 
         .rp-auth-brand-icon {
-          width: 54px;
-          height: 54px;
+          width: 68px;
+          height: 68px;
           object-fit: contain;
           filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.22));
         }
@@ -288,15 +295,15 @@ export default function RegisterClient() {
         }
 
         .rp-auth-brand-title strong {
-          font-size: 25px;
+          font-size: 30px;
           letter-spacing: -0.055em;
           color: #ffffff;
           font-weight: 950;
         }
 
         .rp-auth-brand-title span {
-          margin-top: 7px;
-          font-size: 10px;
+          margin-top: 8px;
+          font-size: 11px;
           letter-spacing: 0.36em;
           color: #7dd3fc;
           text-transform: uppercase;
@@ -464,15 +471,30 @@ export default function RegisterClient() {
           color: #1e1b4b;
         }
 
-        .rp-mobile-brand span {
-          display: block;
-          margin-top: 5px;
-          font-size: 9px;
-          font-weight: 950;
-          letter-spacing: 0.36em;
-          color: #14b8a6;
-          text-transform: uppercase;
-        }
+        .rp-mobile-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.rp-mobile-brand-text strong {
+  display: block;
+  font-size: 25px;
+  font-weight: 950;
+  letter-spacing: -0.055em;
+  color: #1e1b4b;
+}
+
+.rp-mobile-brand-text em {
+  display: block;
+  margin-top: 7px;
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.36em;
+  color: #14b8a6;
+  text-transform: uppercase;
+}
 
         .rp-auth-card h2 {
           margin: 0;
@@ -812,18 +834,14 @@ export default function RegisterClient() {
         <div className="rp-auth-orb-one" />
         <div className="rp-auth-orb-two" />
 
-        <Link href="/" className="rp-auth-brand">
-          <img
-            src="/brand/rehabpearls-logo.png"
-            alt="RehabPearls Clinical QBank"
-            className="rp-auth-brand-icon"
-          />
+       <Link href="/" className="rp-mobile-brand">
+  <img src="/brand/rehabpearls-logo.png" alt="RehabPearls" />
 
-          <span className="rp-auth-brand-title">
-            <strong>RehabPearls</strong>
-            <span>Clinical QBank</span>
-          </span>
-        </Link>
+  <span className="rp-mobile-brand-text">
+    <strong>RehabPearls</strong>
+    <em>Clinical QBank</em>
+  </span>
+</Link>
 
         <div className="rp-auth-story">
           <p className="rp-auth-kicker">Clinical board preparation</p>
