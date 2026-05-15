@@ -108,15 +108,79 @@ export default function Header() {
         fontFamily:"var(--font-sans),system-ui,sans-serif",
       }}>
         <div style={{maxWidth:1200,margin:"0 auto",padding:"0 24px",height:64,display:"flex",alignItems:"center",justifyContent:"space-between",gap:24}}>
+{/* LOGO */}
+<Link
+  href="/"
+  aria-label="RehabPearls home"
+  style={{
+    textDecoration: "none",
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    flexShrink: 0,
+  }}
+>
+  <div
+    style={{
+      width: 42,
+      height: 42,
+      borderRadius: 14,
+      background:
+        "radial-gradient(circle at 32% 28%, #ffffff 0 9%, transparent 10%), linear-gradient(135deg,#0f172a 0%,#312e81 46%,#14b8a6 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "#fff",
+      fontSize: 13,
+      fontWeight: 950,
+      letterSpacing: "-0.08em",
+      boxShadow: "0 8px 22px rgba(49,46,129,.28)",
+      border: "1px solid rgba(255,255,255,.22)",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    RP
+    <span
+      style={{
+        position: "absolute",
+        right: 6,
+        bottom: 6,
+        width: 8,
+        height: 8,
+        borderRadius: "50%",
+        background: "#e0f2fe",
+        boxShadow: "0 0 0 3px rgba(255,255,255,.18)",
+      }}
+    />
+  </div>
 
-          {/* LOGO */}
-          <Link href="/" style={{textDecoration:"none",display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
-            <div style={{width:34,height:34,borderRadius:10,background:"linear-gradient(135deg,#4f46e5,#7c3aed)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,color:"#fff",boxShadow:"0 2px 8px rgba(79,70,229,.35)"}}>R</div>
-            <div>
-              <p style={{fontSize:16,fontWeight:800,color:"#0f0f1a",letterSpacing:"-0.02em",lineHeight:1.1}}>RehabPearls</p>
-              <p style={{fontSize:10,color:"#9ca3af",fontWeight:500,letterSpacing:"0.04em",lineHeight:1}}>EXAM PREP</p>
-            </div>
-          </Link>
+  <div>
+    <p
+      style={{
+        fontSize: 17,
+        fontWeight: 900,
+        color: "#0f172a",
+        letterSpacing: "-0.045em",
+        lineHeight: 1.05,
+      }}
+    >
+      RehabPearls
+    </p>
+    <p
+      style={{
+        fontSize: 9.5,
+        color: "#64748b",
+        fontWeight: 850,
+        letterSpacing: "0.16em",
+        lineHeight: 1,
+        textTransform: "uppercase",
+      }}
+    >
+      Clinical QBank
+    </p>
+  </div>
+</Link>
 
           {/* NAV */}
           <nav style={{display:"flex",alignItems:"center",gap:2,flex:1,justifyContent:"center"}}>
