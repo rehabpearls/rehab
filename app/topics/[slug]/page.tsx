@@ -284,12 +284,12 @@ const topicGroupName = Array.isArray(topicAny.topic_groups)
             </div>
           ) : (
             <div className="rp-empty">
-              <h3>Questions coming soon</h3>
-              <p>
-                This topic is ready for linked QBank questions. Add questions in
-                admin and connect them through question_topics.
-              </p>
-              <Link href="/qbank">Explore QBank →</Link>
+            <h3>Practice related rehabilitation questions</h3>
+<p>
+  Continue your study with board-style rehabilitation questions, clinical
+  reasoning practice, and exam-style learning inside the RehabPearls QBank.
+</p>
+<Link href="/qbank">Open QBank →</Link>
             </div>
           )}
         </section>
@@ -317,12 +317,12 @@ const topicGroupName = Array.isArray(topicAny.topic_groups)
             </div>
           ) : (
             <div className="rp-empty">
-              <h3>Articles coming soon</h3>
-              <p>
-                AI blog posts can later be automatically linked to this topic
-                for stronger topical authority and internal SEO.
-              </p>
-              <Link href="/blog">Visit Rehab Blog →</Link>
+             <h3>Explore related rehab education articles</h3>
+<p>
+  Read evidence-based rehabilitation articles, clinical reasoning guides,
+  therapy learning resources, and board exam preparation content.
+</p>
+<Link href="/blog">Visit Rehab Blog →</Link>
             </div>
           )}
         </section>
