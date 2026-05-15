@@ -108,6 +108,7 @@ export default function RegisterClient() {
 
   const cleanName = fullName.trim()
   const cleanEmail = email.trim().toLowerCase()
+  const cleanProfession = profession.trim()
 
   if (!cleanName) {
     setError("Please enter your full name.")
@@ -119,6 +120,11 @@ export default function RegisterClient() {
     return
   }
 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    setError("Please enter a valid email address.")
+    return
+  }
+
   if (password.length < 8) {
     setError("Password must be at least 8 characters.")
     return
@@ -127,42 +133,62 @@ export default function RegisterClient() {
   setLoadingEmail(true)
 
   try {
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const signUpPromise = supabase.auth.signUp({
       email: cleanEmail,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
         data: {
           full_name: cleanName,
-          profession: profession || null,
+          profession: cleanProfession || null,
           role: "user",
         },
       },
     })
 
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            "Registration timed out. Please check Supabase Auth settings, email provider, or database trigger."
+          )
+        )
+      }, 12000)
+    })
+
+    const { data, error: signUpError } = await Promise.race([
+      signUpPromise,
+      timeoutPromise,
+    ])
+
     if (signUpError) {
-      setError(signUpError.message)
+      console.error("SUPABASE SIGNUP ERROR FULL:", signUpError)
+
+      setError(
+        signUpError.message ||
+          signUpError.name ||
+          "Registration failed. Please check Supabase Auth settings."
+      )
+
       return
     }
 
-    /**
-     * Important:
-     * Do NOT upsert profiles here.
-     * Supabase RLS often blocks anonymous/client profile inserts.
-     * Save profile data in auth metadata first.
-     * Create/update the profile later in onboarding or with a DB trigger.
-     */
     if (data.user && data.session) {
       router.replace("/onboarding")
       return
     }
 
     setSuccess(
-      "Account created. Please check your email to confirm your account, then sign in and continue onboarding."
+      "Account created. Please check your email to confirm your account, then sign in."
     )
-  } catch (err) {
-    console.error("EMAIL REGISTER ERROR:", err)
-    setError("Something went wrong while creating your account. Please try again.")
+  } catch (err: unknown) {
+    console.error("EMAIL REGISTER ERROR FULL:", err)
+
+    if (err instanceof Error) {
+      setError(err.message)
+    } else {
+      setError("Something went wrong while creating your account.")
+    }
   } finally {
     setLoadingEmail(false)
   }
@@ -852,12 +878,17 @@ export default function RegisterClient() {
         <div className="rp-auth-orb-one" />
         <div className="rp-auth-orb-two" />
 
-       <Link href="/" className="rp-auth-brand">
+       <Link href="/" className="rp-auth-brand rp-auth-brand-dark">
   <img
     src="/brand/rehabpearls-logo.png"
-    alt="RehabPearls Clinical QBank"
-    className="rp-auth-brand-full"
+    alt="RehabPearls"
+    className="rp-auth-brand-shell"
   />
+
+  <span className="rp-auth-brand-dark-text">
+    <strong>RehabPearls</strong>
+    <em>Clinical QBank</em>
+  </span>
 </Link>
 
         <div className="rp-auth-story">
