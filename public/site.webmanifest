@@ -1,0 +1,21 @@
+{
+  "name": "RehabPearls",
+  "short_name": "RehabPearls",
+  "description": "Clinical Rehab QBank and Neuro Rehab Education Platform",
+  "theme_color": "#5B5CFF",
+  "background_color": "#0B1020",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
