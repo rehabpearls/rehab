@@ -128,41 +128,6 @@ export default function Header() {
     display: "block",
   }}
 />
-
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      lineHeight: 1,
-    }}
-  >
-    <span
-      style={{
-        fontSize: 30,
-        fontWeight: 800,
-        letterSpacing: "-0.04em",
-        background:
-          "linear-gradient(90deg,#1E1B4B 0%, #4338CA 55%, #7C3AED 100%)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-      }}
-    >
-      RehabPearls
-    </span>
-
-    <span
-      style={{
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: "0.35em",
-        color: "#14B8A6",
-        marginTop: 4,
-        textTransform: "uppercase",
-      }}
-    >
-      Clinical QBank
-    </span>
-  </div>
 </Link>
 
           {/* NAV */}
