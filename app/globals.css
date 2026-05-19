@@ -42,7 +42,9 @@
   --font-mono: var(--font-mono);
 }
 
-/* Base */
+/* =========================================================
+   Base
+   ========================================================= */
 
 *,
 *::before,
@@ -130,7 +132,9 @@ button {
   color: #0f172a;
 }
 
-/* Typography */
+/* =========================================================
+   Typography
+   ========================================================= */
 
 h1,
 h2,
@@ -163,7 +167,9 @@ b {
   font-weight: 850;
 }
 
-/* Layout helpers */
+/* =========================================================
+   Shared Layout
+   ========================================================= */
 
 .rp-container,
 .rp-wrap {
@@ -180,7 +186,9 @@ b {
   background: #f8fafc;
 }
 
-/* Buttons */
+/* =========================================================
+   Buttons
+   ========================================================= */
 
 .rp-btn,
 .rp-button-primary,
@@ -251,8 +259,7 @@ a[href="/register"].cta-button {
   box-shadow: var(--rp-shadow-sm);
 }
 
-/* Old inline gradient buttons only */
-
+/* Old inline gradient buttons */
 a[style*="linear-gradient"],
 button[style*="linear-gradient"],
 a[style*="#4f46e5"],
@@ -275,7 +282,338 @@ button[style*="#2563eb"] * {
   color: #ffffff !important;
 }
 
-/* Cards / panels */
+/* =========================================================
+   Homepage
+   ========================================================= */
+
+.rp-home {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.rp-home .rp-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 92px 24px 76px;
+  color: #0f172a !important;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(20, 184, 166, 0.18), transparent 32%),
+    radial-gradient(circle at 12% 88%, rgba(37, 99, 235, 0.1), transparent 30%),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #eafbf7 100%);
+}
+
+.rp-home .rp-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.rp-home .rp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 13px;
+  margin-bottom: 22px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e3a8a !important;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.rp-home .rp-hero h1 {
+  margin: 0;
+  max-width: 800px;
+  color: #07111f !important;
+  font-size: clamp(46px, 6.1vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+}
+
+.rp-home .rp-accent {
+  color: #0f766e !important;
+}
+
+.rp-home .rp-lead {
+  max-width: 690px;
+  margin: 24px 0 0;
+  color: #334155 !important;
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 520;
+}
+
+.rp-home .rp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.rp-home .rp-btn {
+  min-height: 52px;
+  padding: 0 24px;
+  font-size: 15px;
+}
+
+.rp-home .rp-hero-note {
+  margin: 18px 0 0;
+  color: #475569 !important;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.rp-home .rp-panel {
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.rp-home .rp-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #173b66;
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.rp-home .rp-panel-head span {
+  color: #ffffff !important;
+}
+
+.rp-home .rp-question {
+  padding: 28px;
+  background: #ffffff;
+  color: #0f172a !important;
+}
+
+.rp-home .rp-question p {
+  margin: 0 0 18px;
+  color: #0f172a !important;
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 850;
+}
+
+.rp-home .rp-options {
+  display: grid;
+  gap: 12px;
+}
+
+.rp-home .rp-option {
+  padding: 14px 16px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #ffffff !important;
+  color: #111827 !important;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.rp-home .rp-option.correct {
+  border-color: #14b8a6;
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+.rp-home .rp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 54px;
+}
+
+.rp-home .rp-stat {
+  padding: 20px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.rp-home .rp-stat strong {
+  display: block;
+  color: #0f172a !important;
+  font-size: 31px;
+  line-height: 1;
+}
+
+.rp-home .rp-stat span {
+  display: block;
+  margin-top: 8px;
+  color: #475569 !important;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.rp-home .rp-kicker {
+  margin: 0 0 12px;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.rp-home .rp-title {
+  margin: 0;
+  max-width: 760px;
+  color: #0f172a;
+  font-size: clamp(34px, 4.2vw, 54px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 950;
+}
+
+.rp-home .rp-copy {
+  max-width: 680px;
+  margin: 18px 0 0;
+  color: #475569;
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+.rp-home .rp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 42px;
+}
+
+.rp-home .rp-card {
+  padding: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.rp-home .rp-card h3 {
+  margin: 0;
+  color: #0f172a !important;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.rp-home .rp-card p {
+  margin: 12px 0 0;
+  color: #64748b !important;
+  line-height: 1.65;
+}
+
+.rp-home .rp-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.rp-home .rp-pill {
+  padding: 10px 13px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.rp-home .rp-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(420px, 1fr);
+  gap: 46px;
+  align-items: start;
+}
+
+.rp-home .rp-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.rp-home .rp-table th,
+.rp-home .rp-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.rp-home .rp-table th {
+  background: #173b66;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.rp-home .rp-table td {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rp-home .rp-faq {
+  display: grid;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.rp-home .rp-faq details {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px 20px;
+}
+
+.rp-home .rp-faq summary {
+  cursor: pointer;
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.rp-home .rp-faq p {
+  margin: 12px 0 0;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.rp-home .rp-cta {
+  text-align: center;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(20, 184, 166, 0.22), transparent 32%),
+    linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #0f766e 100%);
+}
+
+.rp-home .rp-cta .rp-title {
+  color: #ffffff !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.rp-home .rp-cta .rp-copy {
+  color: #dbeafe !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.rp-home .rp-cta .rp-btn-outline {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #ffffff !important;
+}
+
+/* =========================================================
+   Generic cards / panels
+   ========================================================= */
 
 .rp-card,
 .feature-card {
@@ -291,87 +629,9 @@ button[style*="#2563eb"] * {
   box-shadow: var(--rp-shadow-md);
 }
 
-/* Home page support */
-
-.rp-home {
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.rp-hero {
-  color: #0f172a !important;
-}
-
-.rp-hero h1,
-.rp-hero h2,
-.rp-hero h3 {
-  color: #07111f !important;
-}
-
-.rp-hero p {
-  color: #334155 !important;
-}
-
-.rp-accent {
-  color: #0f766e !important;
-}
-
-.rp-badge {
-  color: #1e3a8a !important;
-  background: #eff6ff !important;
-  border-color: #bfdbfe !important;
-}
-
-.rp-question {
-  background: #ffffff !important;
-  color: #0f172a !important;
-}
-
-.rp-question p {
-  color: #0f172a !important;
-}
-
-.rp-option {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border: 1px solid #dbe3ef !important;
-}
-
-.rp-option.correct {
-  background: #ecfdf5 !important;
-  color: #065f46 !important;
-  border-color: #14b8a6 !important;
-}
-
-.rp-panel {
-  background: #ffffff !important;
-  border: 1px solid #dbeafe !important;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12) !important;
-}
-
-.rp-panel-head {
-  background: #173b66 !important;
-  color: #ffffff !important;
-}
-
-.rp-panel-head * {
-  color: #ffffff !important;
-}
-
-.rp-stat {
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-}
-
-.rp-stat strong {
-  color: #0f172a !important;
-}
-
-.rp-stat span {
-  color: #475569 !important;
-}
-
-/* Dark / gradient section contrast fix */
+/* =========================================================
+   Dark / gradient sections contrast fix
+   ========================================================= */
 
 .rp-dark-section,
 .rp-gradient-section,
@@ -410,7 +670,7 @@ button[style*="#2563eb"] * {
   color: #ffffff !important;
 }
 
-/* Inline gradient hero sections, but scoped carefully */
+/* Inline gradient sections, scoped gently */
 
 section[style*="linear-gradient"],
 div[style*="linear-gradient"] {
@@ -436,7 +696,7 @@ div[style*="linear-gradient"] > p {
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Protect readable content inside white cards within gradient sections */
+/* Protect readable content inside white cards within gradients */
 
 section[style*="linear-gradient"] .rp-card,
 section[style*="linear-gradient"] .feature-card,
@@ -472,33 +732,9 @@ section[style*="linear-gradient"] details p {
   color: #475569 !important;
 }
 
-/* Known old page hero class patterns */
-
-.hero[style*="linear-gradient"] h1,
-.page-hero[style*="linear-gradient"] h1,
-.cases-hero[style*="linear-gradient"] h1,
-.about-hero[style*="linear-gradient"] h1,
-.pricing-hero[style*="linear-gradient"] h1,
-.guides-hero[style*="linear-gradient"] h1 {
-  color: #ffffff !important;
-}
-
-/* Tables */
-
-table {
-  border-collapse: collapse;
-}
-
-th {
-  font-weight: 850;
-}
-
-td,
-th {
-  vertical-align: top;
-}
-
-/* Header */
+/* =========================================================
+   Header / logo safety
+   ========================================================= */
 
 header {
   isolation: isolate;
@@ -510,10 +746,20 @@ header a {
 
 .header-logo img,
 .rp-logo img {
-  object-fit: contain;
+  width: auto !important;
+  max-width: 210px !important;
+  max-height: 54px !important;
+  object-fit: contain !important;
 }
 
-/* Footer */
+header img[src*="rehabpearls-logo"] {
+  max-height: 54px !important;
+  width: auto !important;
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
 
 footer {
   background:
@@ -545,7 +791,9 @@ footer a:hover {
   color: #ffffff !important;
 }
 
-/* Floating CTA */
+/* =========================================================
+   Floating CTA
+   ========================================================= */
 
 .floating-cta,
 .sticky-cta,
@@ -563,7 +811,9 @@ button[style*="position: fixed"] {
   color: #ffffff !important;
 }
 
-/* Forms */
+/* =========================================================
+   Forms / tables
+   ========================================================= */
 
 input,
 textarea,
@@ -578,7 +828,22 @@ select:focus {
   border-color: rgba(37, 99, 235, 0.45);
 }
 
-/* Mobile */
+table {
+  border-collapse: collapse;
+}
+
+th {
+  font-weight: 850;
+}
+
+td,
+th {
+  vertical-align: top;
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
 
 @media (max-width: 1024px) {
   .rp-container,
@@ -591,14 +856,19 @@ select:focus {
   }
 }
 
-@media (max-width: 768px) {
-  html,
-  body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
+@media (max-width: 900px) {
+  .rp-home .rp-hero-grid,
+  .rp-home .rp-split {
+    grid-template-columns: 1fr;
   }
 
+  .rp-home .rp-stats,
+  .rp-home .rp-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
   .rp-container,
   .rp-wrap {
     width: min(100% - 28px, 100%);
@@ -650,6 +920,31 @@ select:focus {
   }
 }
 
+@media (max-width: 560px) {
+  .rp-home .rp-wrap {
+    width: min(100% - 28px, 100%);
+  }
+
+  .rp-home .rp-hero,
+  .rp-home .rp-section {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .rp-home .rp-hero {
+    padding-top: 64px;
+  }
+
+  .rp-home .rp-actions {
+    flex-direction: column;
+  }
+
+  .rp-home .rp-stats,
+  .rp-home .rp-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 430px) {
   .rp-container,
   .rp-wrap {
@@ -671,7 +966,9 @@ select:focus {
   }
 }
 
-/* Accessibility */
+/* =========================================================
+   Accessibility / Print
+   ========================================================= */
 
 :focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.32);
@@ -690,8 +987,6 @@ select:focus {
   }
 }
 
-/* Print */
-
 @media print {
   header,
   footer,
@@ -704,291 +999,5 @@ select:focus {
   body {
     background: #ffffff !important;
     color: #000000 !important;
-  }
-}
-/* =========================================================
-   Homepage full styling
-   ========================================================= */
-
-.rp-home {
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.rp-wrap {
-  width: min(1180px, calc(100% - 48px));
-  margin-inline: auto;
-}
-
-.rp-section {
-  padding: 88px 24px;
-}
-
-.rp-hero {
-  position: relative;
-  overflow: hidden;
-  padding: 92px 24px 76px;
-  color: #0f172a !important;
-  background:
-    radial-gradient(circle at 82% 18%, rgba(20, 184, 166, 0.18), transparent 32%),
-    radial-gradient(circle at 12% 88%, rgba(37, 99, 235, 0.1), transparent 30%),
-    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #eafbf7 100%);
-}
-
-.rp-hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
-  gap: 56px;
-  align-items: center;
-}
-
-.rp-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 13px;
-  margin-bottom: 22px;
-  border: 1px solid #bfdbfe;
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #1e3a8a !important;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.rp-hero h1 {
-  margin: 0;
-  max-width: 800px;
-  color: #07111f !important;
-  font-size: clamp(46px, 6.1vw, 76px);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  font-weight: 950;
-}
-
-.rp-accent {
-  color: #0f766e !important;
-}
-
-.rp-lead {
-  max-width: 690px;
-  margin: 24px 0 0;
-  color: #334155 !important;
-  font-size: 20px;
-  line-height: 1.7;
-  font-weight: 520;
-}
-
-.rp-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 34px;
-}
-
-.rp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 0 24px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 850;
-  line-height: 1;
-  text-decoration: none;
-}
-
-.rp-btn-primary {
-  background: #2563eb !important;
-  color: #ffffff !important;
-  border: 1px solid #2563eb !important;
-  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
-}
-
-.rp-btn-outline {
-  background: #ffffff !important;
-  color: #0f172a !important;
-  border: 1px solid #cbd5e1 !important;
-}
-
-.rp-hero-note {
-  margin: 18px 0 0;
-  color: #475569 !important;
-  font-size: 14px;
-  font-weight: 750;
-}
-
-.rp-panel {
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
-  overflow: hidden;
-}
-
-.rp-panel-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  background: #173b66;
-  color: #ffffff !important;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.rp-panel-head span {
-  color: #ffffff !important;
-}
-
-.rp-question {
-  padding: 28px;
-  background: #ffffff;
-  color: #0f172a !important;
-}
-
-.rp-question p {
-  margin: 0 0 18px;
-  color: #0f172a !important;
-  font-size: 18px;
-  line-height: 1.6;
-  font-weight: 850;
-}
-
-.rp-options {
-  display: grid;
-  gap: 12px;
-}
-
-.rp-option {
-  padding: 14px 16px;
-  border: 1px solid #dbe3ef;
-  border-radius: 8px;
-  background: #ffffff !important;
-  color: #111827 !important;
-  font-size: 15px;
-  font-weight: 750;
-}
-
-.rp-option.correct {
-  border-color: #14b8a6;
-  background: #ecfdf5 !important;
-  color: #065f46 !important;
-}
-
-.rp-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 54px;
-}
-
-.rp-stat {
-  padding: 20px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
-}
-
-.rp-stat strong {
-  display: block;
-  color: #0f172a !important;
-  font-size: 31px;
-  line-height: 1;
-}
-
-.rp-stat span {
-  display: block;
-  margin-top: 8px;
-  color: #475569 !important;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.rp-grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 42px;
-}
-
-.rp-card {
-  padding: 26px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
-}
-
-.rp-card h3 {
-  margin: 0;
-  color: #0f172a !important;
-  font-size: 20px;
-}
-
-.rp-card p {
-  margin: 12px 0 0;
-  color: #64748b !important;
-  line-height: 1.65;
-}
-
-.rp-cta .rp-title {
-  color: #ffffff !important;
-}
-
-.rp-cta .rp-copy {
-  color: #dbeafe !important;
-}
-
-/* Header logo safety */
-.rp-logo img,
-.header-logo img {
-  width: auto !important;
-  max-width: 210px !important;
-  max-height: 54px !important;
-  object-fit: contain !important;
-}
-
-/* If logo file is just an icon, do not let it explode */
-header img[src*="rehabpearls-logo"] {
-  max-height: 54px !important;
-  width: auto !important;
-}
-
-@media (max-width: 900px) {
-  .rp-hero-grid,
-  .rp-split {
-    grid-template-columns: 1fr;
-  }
-
-  .rp-stats,
-  .rp-grid-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
-  .rp-wrap {
-    width: min(100% - 28px, 100%);
-  }
-
-  .rp-hero,
-  .rp-section {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-
-  .rp-hero {
-    padding-top: 64px;
-  }
-
-  .rp-actions {
-    flex-direction: column;
-  }
-
-  .rp-stats,
-  .rp-grid-3 {
-    grid-template-columns: 1fr;
   }
 }
