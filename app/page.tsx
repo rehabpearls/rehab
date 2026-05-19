@@ -262,7 +262,74 @@ export default function Home() {
   font-size: 14px;
   font-weight: 700;
 }
+.rp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}
 
+.rp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.rp-btn:hover {
+  transform: translateY(-2px);
+}
+
+.rp-question {
+  padding: 28px;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.rp-question p {
+  margin: 0 0 18px;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 800;
+}
+.rp-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  gap: 56px;
+  align-items: center;
+}
+.rp-options {
+  display: grid;
+  gap: 12px;
+}
+
+.rp-option {
+  padding: 14px 16px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.rp-option.correct {
+  border-color: #14b8a6;
+  background: #ecfdf5;
+  color: #065f46;
+}
 .rp-panel {
   border: 1px solid #dbeafe;
   border-radius: 8px;
