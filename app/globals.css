@@ -2,56 +2,36 @@
 
 /* =========================================================
    RehabPearls Global Design System
-   Premium medical SaaS / clinical education platform
+   Clean medical SaaS / clinical education platform
    ========================================================= */
 
 :root {
   --background: #ffffff;
-  --foreground: #111827;
+  --foreground: #0f172a;
 
-  --rp-navy: #0b1020;
-  --rp-dark: #111827;
-  --rp-deep: #1e1b4b;
-  --rp-indigo: #4f46e5;
-  --rp-indigo-2: #4338ca;
-  --rp-violet: #7c3aed;
-  --rp-purple: #5b43f6;
-  --rp-teal: #14b8a6;
-  --rp-cyan: #22d3ee;
+  --rp-navy: #0f172a;
+  --rp-blue: #2563eb;
+  --rp-blue-dark: #1d4ed8;
+  --rp-teal: #0f766e;
+  --rp-teal-bright: #14b8a6;
 
-  --rp-text: #111827;
-  --rp-heading: #25206f;
-  --rp-muted: #64748b;
-  --rp-muted-2: #94a3b8;
+  --rp-heading: #0b1220;
+  --rp-text: #0f172a;
+  --rp-muted: #475569;
+  --rp-muted-soft: #64748b;
 
   --rp-soft: #f8fafc;
-  --rp-soft-purple: #f5f3ff;
-  --rp-card: #ffffff;
-  --rp-card-soft: #f7f7ff;
-  --rp-border: #e5e7eb;
-  --rp-border-strong: #c7d2fe;
+  --rp-blue-soft: #eff6ff;
+  --rp-teal-soft: #ecfdf5;
+  --rp-border: #e2e8f0;
+  --rp-border-strong: #cbd5e1;
 
-  --rp-hero-bg:
-    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.13), transparent 34%),
-    radial-gradient(circle at 88% 10%, rgba(20, 184, 166, 0.08), transparent 30%),
-    linear-gradient(180deg, #f5f3ff 0%, #fbfaff 48%, #ffffff 100%);
+  --rp-shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --rp-shadow-md: 0 18px 44px rgba(15, 23, 42, 0.1);
+  --rp-shadow-blue: 0 16px 34px rgba(37, 99, 235, 0.24);
 
-  --rp-glass:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.92),
-      rgba(255, 255, 255, 0.74)
-    );
-
-  --rp-shadow-xs: 0 2px 8px rgba(15, 23, 42, 0.05);
-  --rp-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.07);
-  --rp-shadow-md: 0 14px 36px rgba(79, 70, 229, 0.14);
-  --rp-shadow-lg: 0 28px 80px rgba(30, 27, 75, 0.18);
-
-  --rp-radius-sm: 10px;
-  --rp-radius-md: 16px;
-  --rp-radius-lg: 24px;
-  --rp-radius-xl: 32px;
+  --rp-radius: 8px;
+  --rp-radius-lg: 12px;
   --rp-radius-pill: 999px;
 }
 
@@ -62,9 +42,7 @@
   --font-mono: var(--font-mono);
 }
 
-/* =========================================================
-   Base reset / overflow protection
-   ========================================================= */
+/* Base */
 
 *,
 *::before,
@@ -72,19 +50,20 @@
   box-sizing: border-box;
 }
 
-html {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-  text-rendering: optimizeLegibility;
-  -webkit-text-size-adjust: 100%;
-}
-
+html,
 body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
@@ -99,12 +78,10 @@ body {
     Arial,
     sans-serif;
   line-height: 1.5;
-  font-feature-settings: "kern", "liga", "calt";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#__next,
 main,
 section,
 header,
@@ -129,8 +106,7 @@ img {
 
 a {
   color: inherit;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 button,
@@ -150,13 +126,11 @@ button {
 }
 
 ::selection {
-  background: rgba(79, 70, 229, 0.18);
-  color: #111827;
+  background: rgba(37, 99, 235, 0.18);
+  color: #0f172a;
 }
 
-/* =========================================================
-   Typography
-   ========================================================= */
+/* Typography */
 
 h1,
 h2,
@@ -164,22 +138,23 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--rp-heading);
-  letter-spacing: -0.045em;
-  text-wrap: balance;
   margin-top: 0;
+  color: var(--rp-heading);
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 h1 {
-  font-weight: 900;
+  font-weight: 950;
 }
 
 h2,
 h3 {
-  font-weight: 850;
+  font-weight: 900;
 }
 
 p {
+  color: var(--rp-muted);
   text-wrap: pretty;
 }
 
@@ -188,147 +163,342 @@ b {
   font-weight: 850;
 }
 
-/* =========================================================
-   Shared brand utilities
-   ========================================================= */
+/* Layout helpers */
 
-.rp-gradient-text {
-  background: linear-gradient(90deg, #1e1b4b 0%, #312e81 45%, #5b43f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.rp-teal-kicker {
-  color: var(--rp-teal);
-  font-weight: 900;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.rp-container {
-  width: min(1280px, calc(100% - 48px));
+.rp-container,
+.rp-wrap {
+  width: min(1180px, calc(100% - 48px));
   margin-inline: auto;
 }
 
 .rp-section {
-  padding: 96px 0;
+  padding: 88px 24px;
 }
 
-.rp-section-soft {
-  background:
-    radial-gradient(circle at top, rgba(99, 102, 241, 0.08), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+.rp-section-soft,
+.rp-band {
+  background: #f8fafc;
 }
 
-.rp-card {
-  background: var(--rp-glass);
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  border-radius: var(--rp-radius-lg);
-  box-shadow: var(--rp-shadow-sm);
-  backdrop-filter: blur(14px);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
-}
+/* Buttons */
 
-.rp-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(99, 102, 241, 0.32);
-  box-shadow: var(--rp-shadow-md);
-}
-
-/* =========================================================
-   Buttons
-   ========================================================= */
-
+.rp-btn,
 .rp-button-primary,
 .rp-button-secondary,
-.rp-button-ghost {
+.rp-button-ghost,
+.cta-button,
+a[class*="btn"],
+button[class*="btn"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 50px;
-  padding: 13px 24px;
-  border-radius: 13px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 8px;
   font-weight: 850;
-  letter-spacing: -0.015em;
+  line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
     background 0.18s ease,
     border-color 0.18s ease,
-    filter 0.18s ease;
+    color 0.18s ease;
 }
 
-.rp-button-primary {
-  color: #ffffff !important;
-  background: linear-gradient(135deg, var(--rp-indigo), var(--rp-violet));
-  border: 0;
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.28);
-}
-
-.rp-button-primary:hover {
+.rp-btn:hover,
+.rp-button-primary:hover,
+.rp-button-secondary:hover,
+.rp-button-ghost:hover,
+.cta-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 18px 42px rgba(79, 70, 229, 0.36);
-  filter: saturate(1.06);
 }
 
+.rp-btn-primary,
+.rp-button-primary,
+.cta-primary,
+.btn-primary,
+a[href="/register"].cta-button {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: var(--rp-shadow-blue);
+}
+
+.rp-btn-primary *,
 .rp-button-primary *,
-.rp-button-primary span,
-.rp-button-primary strong {
+.cta-primary *,
+.btn-primary * {
   color: #ffffff !important;
 }
 
-.rp-button-secondary {
-  color: var(--rp-indigo) !important;
-  border: 1.5px solid rgba(79, 70, 229, 0.78);
-  background: rgba(255, 255, 255, 0.72);
+.rp-btn-outline,
+.rp-button-secondary,
+.cta-secondary,
+.btn-secondary {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
 }
 
-.rp-button-secondary:hover {
-  background: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.12);
-}
-
-.rp-button-ghost {
-  color: var(--rp-deep);
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-}
-
-.rp-button-ghost:hover {
-  background: #ffffff;
+.rp-btn-outline:hover,
+.rp-button-secondary:hover,
+.cta-secondary:hover,
+.btn-secondary:hover {
+  border-color: #2563eb !important;
   box-shadow: var(--rp-shadow-sm);
 }
 
-/* Fix inline-style gradient buttons across old pages */
-button[style*="linear-gradient"],
+/* Old inline gradient buttons only */
+
 a[style*="linear-gradient"],
-button[style*="#4f46e5"],
+button[style*="linear-gradient"],
 a[style*="#4f46e5"],
-button[style*="#7c3aed"],
+button[style*="#4f46e5"],
 a[style*="#7c3aed"],
-button[style*="rgb(79, 70, 229)"],
-a[style*="rgb(79, 70, 229)"] {
+button[style*="#7c3aed"],
+a[style*="#2563eb"],
+button[style*="#2563eb"] {
   color: #ffffff !important;
 }
 
-button[style*="linear-gradient"] *,
 a[style*="linear-gradient"] *,
-button[style*="#4f46e5"] *,
+button[style*="linear-gradient"] *,
 a[style*="#4f46e5"] *,
+button[style*="#4f46e5"] *,
+a[style*="#7c3aed"] *,
 button[style*="#7c3aed"] *,
-a[style*="#7c3aed"] * {
+a[style*="#2563eb"] *,
+button[style*="#2563eb"] * {
   color: #ffffff !important;
 }
 
-/* =========================================================
-   Header polish
-   ========================================================= */
+/* Cards / panels */
+
+.rp-card,
+.feature-card {
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--rp-border);
+  box-shadow: var(--rp-shadow-sm);
+}
+
+.rp-card:hover,
+.feature-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: var(--rp-shadow-md);
+}
+
+/* Home page support */
+
+.rp-home {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.rp-hero {
+  color: #0f172a !important;
+}
+
+.rp-hero h1,
+.rp-hero h2,
+.rp-hero h3 {
+  color: #07111f !important;
+}
+
+.rp-hero p {
+  color: #334155 !important;
+}
+
+.rp-accent {
+  color: #0f766e !important;
+}
+
+.rp-badge {
+  color: #1e3a8a !important;
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+}
+
+.rp-question {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.rp-question p {
+  color: #0f172a !important;
+}
+
+.rp-option {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #dbe3ef !important;
+}
+
+.rp-option.correct {
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: #14b8a6 !important;
+}
+
+.rp-panel {
+  background: #ffffff !important;
+  border: 1px solid #dbeafe !important;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12) !important;
+}
+
+.rp-panel-head {
+  background: #173b66 !important;
+  color: #ffffff !important;
+}
+
+.rp-panel-head * {
+  color: #ffffff !important;
+}
+
+.rp-stat {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.rp-stat strong {
+  color: #0f172a !important;
+}
+
+.rp-stat span {
+  color: #475569 !important;
+}
+
+/* Dark / gradient section contrast fix */
+
+.rp-dark-section,
+.rp-gradient-section,
+.rp-hero-dark {
+  color: #ffffff;
+}
+
+.rp-dark-section h1,
+.rp-dark-section h2,
+.rp-dark-section h3,
+.rp-gradient-section h1,
+.rp-gradient-section h2,
+.rp-gradient-section h3,
+.rp-hero-dark h1,
+.rp-hero-dark h2,
+.rp-hero-dark h3 {
+  color: #ffffff !important;
+  text-shadow: 0 16px 38px rgba(15, 23, 42, 0.22);
+}
+
+.rp-dark-section p,
+.rp-gradient-section p,
+.rp-hero-dark p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.rp-dark-section span,
+.rp-gradient-section span,
+.rp-hero-dark span {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.rp-dark-section strong,
+.rp-gradient-section strong,
+.rp-hero-dark strong {
+  color: #ffffff !important;
+}
+
+/* Inline gradient hero sections, but scoped carefully */
+
+section[style*="linear-gradient"],
+div[style*="linear-gradient"] {
+  color: #ffffff;
+}
+
+section[style*="linear-gradient"] > h1,
+section[style*="linear-gradient"] > h2,
+section[style*="linear-gradient"] > h3,
+section[style*="linear-gradient"] > div > h1,
+section[style*="linear-gradient"] > div > h2,
+section[style*="linear-gradient"] > div > h3,
+div[style*="linear-gradient"] > h1,
+div[style*="linear-gradient"] > h2,
+div[style*="linear-gradient"] > h3 {
+  color: #ffffff !important;
+  text-shadow: 0 16px 38px rgba(15, 23, 42, 0.22);
+}
+
+section[style*="linear-gradient"] > p,
+section[style*="linear-gradient"] > div > p,
+div[style*="linear-gradient"] > p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Protect readable content inside white cards within gradient sections */
+
+section[style*="linear-gradient"] .rp-card,
+section[style*="linear-gradient"] .feature-card,
+section[style*="linear-gradient"] .stat-card,
+section[style*="linear-gradient"] details,
+div[style*="linear-gradient"] .rp-card,
+div[style*="linear-gradient"] .feature-card,
+div[style*="linear-gradient"] .stat-card,
+div[style*="linear-gradient"] details {
+  color: #0f172a !important;
+}
+
+section[style*="linear-gradient"] .rp-card h1,
+section[style*="linear-gradient"] .rp-card h2,
+section[style*="linear-gradient"] .rp-card h3,
+section[style*="linear-gradient"] .feature-card h1,
+section[style*="linear-gradient"] .feature-card h2,
+section[style*="linear-gradient"] .feature-card h3,
+section[style*="linear-gradient"] .stat-card h1,
+section[style*="linear-gradient"] .stat-card h2,
+section[style*="linear-gradient"] .stat-card h3,
+section[style*="linear-gradient"] details h1,
+section[style*="linear-gradient"] details h2,
+section[style*="linear-gradient"] details h3 {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+section[style*="linear-gradient"] .rp-card p,
+section[style*="linear-gradient"] .feature-card p,
+section[style*="linear-gradient"] .stat-card p,
+section[style*="linear-gradient"] details p {
+  color: #475569 !important;
+}
+
+/* Known old page hero class patterns */
+
+.hero[style*="linear-gradient"] h1,
+.page-hero[style*="linear-gradient"] h1,
+.cases-hero[style*="linear-gradient"] h1,
+.about-hero[style*="linear-gradient"] h1,
+.pricing-hero[style*="linear-gradient"] h1,
+.guides-hero[style*="linear-gradient"] h1 {
+  color: #ffffff !important;
+}
+
+/* Tables */
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  font-weight: 850;
+}
+
+td,
+th {
+  vertical-align: top;
+}
+
+/* Header */
 
 header {
   isolation: isolate;
@@ -338,14 +508,17 @@ header a {
   text-decoration: none;
 }
 
-/* =========================================================
-   Footer polish
-   ========================================================= */
+.header-logo img,
+.rp-logo img {
+  object-fit: contain;
+}
+
+/* Footer */
 
 footer {
   background:
-    radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.1), transparent 30%),
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.12), transparent 30%),
     linear-gradient(180deg, #111827 0%, #0b1020 100%) !important;
   color: #cbd5e1 !important;
 }
@@ -366,27 +539,13 @@ footer li {
 
 footer a {
   color: #dbeafe !important;
-  text-decoration: none;
-  transition:
-    color 0.18s ease,
-    opacity 0.18s ease,
-    transform 0.18s ease;
 }
 
 footer a:hover {
   color: #ffffff !important;
-  opacity: 1;
 }
 
-footer [style*="#1e1b4b"],
-footer [style*="#111827"],
-footer [style*="#374151"] {
-  color: #cbd5e1 !important;
-}
-
-/* =========================================================
-   Floating CTA polish
-   ========================================================= */
+/* Floating CTA */
 
 .floating-cta,
 .sticky-cta,
@@ -395,7 +554,7 @@ a[href="/register"][style*="position: fixed"],
 button[style*="position: fixed"] {
   color: #ffffff !important;
   z-index: 40 !important;
-  box-shadow: 0 18px 44px rgba(79, 70, 229, 0.35) !important;
+  box-shadow: 0 18px 44px rgba(37, 99, 235, 0.3) !important;
 }
 
 .floating-cta *,
@@ -404,34 +563,31 @@ button[style*="position: fixed"] {
   color: #ffffff !important;
 }
 
-/* =========================================================
-   Forms
-   ========================================================= */
+/* Forms */
 
 input,
 textarea,
 select {
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  outline: 3px solid rgba(79, 70, 229, 0.18);
-  border-color: rgba(79, 70, 229, 0.45);
+  outline: 3px solid rgba(37, 99, 235, 0.16);
+  border-color: rgba(37, 99, 235, 0.45);
 }
 
-/* =========================================================
-   Mobile responsive system
-   ========================================================= */
+/* Mobile */
 
 @media (max-width: 1024px) {
-  .rp-container {
+  .rp-container,
+  .rp-wrap {
     width: min(100% - 36px, 100%);
   }
 
   .rp-section {
-    padding: 76px 0;
+    padding: 76px 18px;
   }
 }
 
@@ -443,48 +599,36 @@ select:focus {
     overflow-x: hidden;
   }
 
-  .rp-container {
+  .rp-container,
+  .rp-wrap {
     width: min(100% - 28px, 100%);
   }
 
-  .rp-section {
-    padding: 64px 0;
-  }
-
   h1 {
-    font-size: clamp(42px, 11vw, 58px) !important;
+    font-size: clamp(38px, 11vw, 56px) !important;
     line-height: 1.06 !important;
-    letter-spacing: -0.065em !important;
+    letter-spacing: -0.055em !important;
   }
 
   h2 {
     font-size: clamp(28px, 8vw, 42px) !important;
     line-height: 1.12 !important;
-    letter-spacing: -0.055em !important;
-  }
-
-  h3 {
-    font-size: clamp(22px, 6vw, 30px) !important;
-    line-height: 1.16 !important;
+    letter-spacing: -0.045em !important;
   }
 
   p {
     font-size: 16px;
-    line-height: 1.72;
+    line-height: 1.7;
   }
 
-  a,
-  button {
-    touch-action: manipulation;
-  }
-
+  .rp-btn,
   .rp-button-primary,
   .rp-button-secondary,
-  .rp-button-ghost {
+  .rp-button-ghost,
+  .cta-button {
     width: 100%;
-    min-height: 54px;
+    min-height: 52px;
     font-size: 16px;
-    border-radius: 14px;
   }
 
   .floating-cta,
@@ -507,25 +651,30 @@ select:focus {
 }
 
 @media (max-width: 430px) {
-  .rp-container {
+  .rp-container,
+  .rp-wrap {
     width: min(100% - 24px, 100%);
   }
 
   h1 {
-    font-size: clamp(38px, 12vw, 52px) !important;
+    font-size: clamp(36px, 12vw, 50px) !important;
   }
 
   h2 {
     font-size: clamp(26px, 8vw, 36px) !important;
   }
+
+  .floating-cta,
+  .sticky-cta,
+  .get-free-access-floating {
+    display: none !important;
+  }
 }
 
-/* =========================================================
-   Accessibility
-   ========================================================= */
+/* Accessibility */
 
 :focus-visible {
-  outline: 3px solid rgba(79, 70, 229, 0.32);
+  outline: 3px solid rgba(37, 99, 235, 0.32);
   outline-offset: 3px;
   border-radius: 8px;
 }
@@ -541,9 +690,7 @@ select:focus {
   }
 }
 
-/* =========================================================
-   Print
-   ========================================================= */
+/* Print */
 
 @media print {
   header,
@@ -558,104 +705,4 @@ select:focus {
     background: #ffffff !important;
     color: #000000 !important;
   }
-}
-@media (max-width: 768px) {
-  .floating-cta,
-  .sticky-cta,
-  .get-free-access-floating {
-    transform: scale(0.92);
-    transform-origin: right bottom;
-    bottom: 18px !important;
-    right: 10px !important;
-    max-width: calc(100vw - 20px) !important;
-  }
-}
-
-@media (max-width: 430px) {
-  .floating-cta,
-  .sticky-cta,
-  .get-free-access-floating {
-    display: none !important;
-  }
-}
-/* =========================================================
-   Dark / Gradient Hero Text Contrast Fix
-   Makes headings readable on purple, indigo, dark and gradient sections
-   ========================================================= */
-
-section[style*="#4f46e5"] h1,
-section[style*="#4f46e5"] h2,
-section[style*="#4f46e5"] h3,
-section[style*="#4338ca"] h1,
-section[style*="#4338ca"] h2,
-section[style*="#4338ca"] h3,
-section[style*="#7c3aed"] h1,
-section[style*="#7c3aed"] h2,
-section[style*="#7c3aed"] h3,
-section[style*="linear-gradient"] h1,
-section[style*="linear-gradient"] h2,
-section[style*="linear-gradient"] h3,
-div[style*="linear-gradient"] h1,
-div[style*="linear-gradient"] h2,
-div[style*="linear-gradient"] h3,
-.rp-dark-section h1,
-.rp-dark-section h2,
-.rp-dark-section h3,
-.rp-gradient-section h1,
-.rp-gradient-section h2,
-.rp-gradient-section h3,
-.rp-hero-dark h1,
-.rp-hero-dark h2,
-.rp-hero-dark h3 {
-  color: #ffffff !important;
-  text-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
-}
-
-section[style*="#4f46e5"] p,
-section[style*="#4338ca"] p,
-section[style*="#7c3aed"] p,
-section[style*="linear-gradient"] p,
-div[style*="linear-gradient"] p,
-.rp-dark-section p,
-.rp-gradient-section p,
-.rp-hero-dark p {
-  color: rgba(255, 255, 255, 0.88) !important;
-}
-
-section[style*="#4f46e5"] span,
-section[style*="#4338ca"] span,
-section[style*="#7c3aed"] span,
-section[style*="linear-gradient"] span,
-div[style*="linear-gradient"] span,
-.rp-dark-section span,
-.rp-gradient-section span,
-.rp-hero-dark span {
-  color: rgba(255, 255, 255, 0.82);
-}
-
-/* Stats / numbers on gradient hero sections */
-section[style*="#4f46e5"] strong,
-section[style*="#4338ca"] strong,
-section[style*="#7c3aed"] strong,
-section[style*="linear-gradient"] strong,
-div[style*="linear-gradient"] strong,
-.rp-dark-section strong,
-.rp-gradient-section strong,
-.rp-hero-dark strong {
-  color: #ffffff !important;
-}
-
-/* Keep purple stats readable on white backgrounds */
-.rp-stat-number,
-.rp-metric-number {
-  color: #4f46e5 !important;
-}
-
-/* Better universal gradient hero look */
-.rp-gradient-section,
-.rp-hero-dark {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.13), transparent 34%),
-    radial-gradient(circle at 85% 20%, rgba(20, 184, 166, 0.12), transparent 28%),
-    linear-gradient(135deg, #312e81 0%, #4f46e5 46%, #7c3aed 100%) !important;
 }

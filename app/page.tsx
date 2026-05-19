@@ -1,12 +1,11 @@
-
 import type { Metadata } from "next"
 import Link from "next/link"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rehabpearls.com"),
-  title: "RehabPearls | NPTE QBank, PT Board Exam Prep & Clinical Reasoning Platform",
+  title: "RehabPearls | NPTE QBank, PT Board Exam Prep & Clinical Reasoning",
   description:
-    "RehabPearls is a clinical reasoning QBank for NPTE, PT board exam prep, OT, SLP, neuro rehab, orthopedic rehab, pediatrics, acute care, and evidence-based rehabilitation exam practice.",
+    "RehabPearls is an adaptive clinical reasoning QBank for NPTE, PT board exam prep, OT, SLP, neuro rehab, orthopedic rehab, pediatrics, acute care, and evidence-based rehabilitation practice.",
   keywords: [
     "NPTE QBank",
     "NPTE prep",
@@ -15,19 +14,14 @@ export const metadata: Metadata = {
     "PT board exam questions",
     "clinical reasoning QBank",
     "rehabilitation QBank",
-    "physical therapy exam prep",
+    "adaptive QBank",
     "occupational therapy exam prep",
     "SLP exam prep",
     "neuro rehab questions",
     "orthopedic rehab questions",
-    "pediatric therapy exam prep",
-    "acute care rehab questions",
-    "evidence based rehabilitation",
     "clinical case simulations",
-    "adaptive QBank",
     "UWorld alternative for rehab",
     "rehab board exam prep",
-    "PT student study platform",
   ],
   alternates: {
     canonical: "https://rehabpearls.com",
@@ -35,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "RehabPearls | Clinical Reasoning QBank for Rehab Professionals",
     description:
-      "Adaptive board-style rehab questions, clinical cases, evidence-based explanations, and performance analytics for PT, OT, SLP, and NPTE preparation.",
+      "Adaptive board-style rehab questions, clinical cases, evidence-based explanations, and analytics for PT, OT, SLP, and NPTE preparation.",
     url: "https://rehabpearls.com",
     siteName: "RehabPearls",
     type: "website",
@@ -69,30 +63,12 @@ export const metadata: Metadata = {
 }
 
 const features = [
-  {
-    title: "Adaptive QBank Engine",
-    text: "Practice with board-style questions that focus attention on weak areas, missed concepts, and clinical decision-making patterns.",
-  },
-  {
-    title: "Clinical Case Simulations",
-    text: "Train with patient scenarios across neuro, orthopedic, pediatric, acute care, cardiopulmonary, and complex rehabilitation settings.",
-  },
-  {
-    title: "Evidence-Based Explanations",
-    text: "Each answer teaches the reasoning behind the choice, so learners build durable clinical judgment instead of memorizing trivia.",
-  },
-  {
-    title: "Performance Analytics",
-    text: "Track readiness by topic, system, difficulty, and exam domain so users know exactly what to review next.",
-  },
-  {
-    title: "Built For Rehab Learners",
-    text: "Designed for PT students, OT learners, SLP clinicians, PM&R teams, and rehabilitation professionals preparing for exams.",
-  },
-  {
-    title: "Exam-Style Practice",
-    text: "Use timed practice, focused review, rationales, and clinical pearls to prepare for pressure before test day.",
-  },
+  ["Adaptive QBank Engine", "Practice with board-style questions that focus review on weak areas, missed concepts, and clinical decision-making patterns."],
+  ["Clinical Case Simulations", "Train with realistic patient scenarios across neuro, orthopedic, pediatric, acute care, cardiopulmonary, and complex rehab settings."],
+  ["Evidence-Based Explanations", "Every answer teaches the reasoning behind the choice, so learners build clinical judgment instead of memorizing isolated facts."],
+  ["Performance Analytics", "Track readiness by topic, difficulty, exam domain, and confidence so users know exactly what to review next."],
+  ["Built For Rehab Learners", "Designed for PT students, OT learners, SLP clinicians, PM&R teams, and rehabilitation professionals preparing for exams."],
+  ["Exam-Style Practice", "Use focused review, timed practice, rationales, and clinical pearls to prepare for pressure before test day."],
 ]
 
 const specialties = [
@@ -108,7 +84,7 @@ const specialties = [
 
 const comparisons = [
   ["Adaptive learning", "Basic question lists", "Weakness-focused practice"],
-  ["Clinical cases", "Limited or generic", "Rehab-specific scenarios"],
+  ["Clinical cases", "Limited or generic", "Rehab-specific patient scenarios"],
   ["Explanations", "Answer-only review", "Reasoning-first rationales"],
   ["Analytics", "Simple scores", "Topic and readiness insights"],
   ["Exam prep focus", "Broad medical review", "PT, OT, SLP, NPTE focus"],
@@ -134,552 +110,158 @@ const faqs = [
 ]
 
 function JsonLd() {
-  const data = [
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      name: "RehabPearls",
-      applicationCategory: "EducationalApplication",
-      operatingSystem: "Web",
-      url: "https://rehabpearls.com",
-      description:
-        "Adaptive rehabilitation QBank and clinical reasoning platform for NPTE, PT, OT, and SLP exam preparation.",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-        description: "Free trial available",
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqs.map((item) => ({
-        "@type": "Question",
-        name: item.q,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.a,
-        },
-      })),
-    },
-  ]
-
   return (
     <>
-      {data.map((item, index) => (
-        <script
-          key={index}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
-        />
-      ))}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            name: "RehabPearls",
+            applicationCategory: "EducationalApplication",
+            operatingSystem: "Web",
+            url: "https://rehabpearls.com",
+            description:
+              "Adaptive rehabilitation QBank and clinical reasoning platform for NPTE, PT, OT, and SLP exam preparation.",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+              description: "Free trial available",
+            },
+          }),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: item.a,
+              },
+            })),
+          }),
+        }}
+      />
     </>
   )
 }
 
 export default function Home() {
   return (
-    <main className="rp-home">
-      <style>{`
-        .rp-home {
-          background: #ffffff;
-          color: #101827;
-          font-family: var(--font-sans), Inter, system-ui, sans-serif;
-        }
-
-        .rp-section {
-          padding: 88px 24px;
-        }
-
-        .rp-wrap {
-          max-width: 1180px;
-          margin: 0 auto;
-        }
-
-        .rp-hero {
-  position: relative;
-  overflow: hidden;
-  padding: 96px 24px 78px;
-  color: #ffffff;
-  background:
-    radial-gradient(circle at 78% 18%, rgba(20, 184, 166, 0.22), transparent 30%),
-    linear-gradient(135deg, #f8fbff 0%, #eef7ff 46%, #e9fbf7 100%);
-}
-
-.rp-hero h1 {
-  margin: 0;
-  max-width: 780px;
-  color: #0f172a;
-  font-size: clamp(46px, 6.2vw, 76px);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  font-weight: 950;
-}
-
-.rp-accent {
-  color: #0f766e;
-}
-
-.rp-lead {
-  max-width: 680px;
-  margin: 24px 0 0;
-  color: #334155;
-  font-size: 20px;
-  line-height: 1.7;
-  font-weight: 500;
-}
-
-.rp-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 13px;
-  margin-bottom: 22px;
-  border: 1px solid #bfdbfe;
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #1e3a8a;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.rp-btn-primary {
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
-}
-
-.rp-btn-outline {
-  border: 1px solid #cbd5e1;
-  color: #0f172a;
-  background: #ffffff;
-}
-
-.rp-hero-note {
-  margin-top: 18px;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 700;
-}
-.rp-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 34px;
-}
-
-.rp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 0 24px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 850;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.rp-btn:hover {
-  transform: translateY(-2px);
-}
-
-.rp-question {
-  padding: 28px;
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.rp-question p {
-  margin: 0 0 18px;
-  color: #0f172a;
-  font-size: 18px;
-  line-height: 1.6;
-  font-weight: 800;
-}
-.rp-hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
-  gap: 56px;
-  align-items: center;
-}
-.rp-options {
-  display: grid;
-  gap: 12px;
-}
-
-.rp-option {
-  padding: 14px 16px;
-  border: 1px solid #dbe3ef;
-  border-radius: 8px;
-  background: #0f172a;
-  color: #111827;
-  font-size: 15px;
-  font-weight: 750;
-}
-
-.rp-option.correct {
-  border-color: #14b8a6;
-  background: #ecfdf5;
-  color: #065f46;
-}
-.rp-panel {
-  border: 1px solid #dbeafe;
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
-  overflow: hidden;
-}
-
-.rp-panel-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  background: #173b66;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 850;
-}
-
-.rp-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 54px;
-}
-
-.rp-stat {
-  padding: 20px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
-}
-
-.rp-stat strong {
-  display: block;
-  font-size: 31px;
-  line-height: 1;
-  color: #0f172a;
-}
-
-.rp-stat span {
-  display: block;
-  margin-top: 8px;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-        .rp-kicker {
-          margin: 0 0 12px;
-          color: #0f766e;
-          font-size: 12px;
-          font-weight: 950;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-        }
-
-        .rp-title {
-          margin: 0;
-          max-width: 760px;
-          font-size: clamp(34px, 4.2vw, 54px);
-          line-height: 1.05;
-          letter-spacing: -0.035em;
-          font-weight: 950;
-        }
-
-        .rp-copy {
-          max-width: 680px;
-          margin: 18px 0 0;
-          color: #475569;
-          font-size: 18px;
-          line-height: 1.75;
-        }
-
-        .rp-grid-3 {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 18px;
-          margin-top: 42px;
-        }
-
-        .rp-card {
-          padding: 26px;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          background: #ffffff;
-          box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
-        }
-
-        .rp-card h3 {
-          margin: 0;
-          font-size: 20px;
-          letter-spacing: -0.02em;
-        }
-
-        .rp-card p {
-          margin: 12px 0 0;
-          color: #64748b;
-          line-height: 1.65;
-        }
-
-        .rp-band {
-          background: #f8fafc;
-        }
-
-        .rp-specialties {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin-top: 30px;
-        }
-
-        .rp-pill {
-          padding: 10px 13px;
-          border: 1px solid #dbeafe;
-          border-radius: 999px;
-          background: #eff6ff;
-          color: #1e3a8a;
-          font-size: 14px;
-          font-weight: 800;
-        }
-
-        .rp-split {
-          display: grid;
-          grid-template-columns: minmax(0, 0.85fr) minmax(420px, 1fr);
-          gap: 46px;
-          align-items: start;
-        }
-
-        .rp-table {
-          width: 100%;
-          border-collapse: collapse;
-          overflow: hidden;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          background: #ffffff;
-        }
-
-        .rp-table th,
-        .rp-table td {
-          padding: 16px;
-          border-bottom: 1px solid #e2e8f0;
-          text-align: left;
-          vertical-align: top;
-        }
-
-        .rp-table th {
-          background: #0f172a;
-          color: #ffffff;
-          font-size: 13px;
-        }
-
-        .rp-table td {
-          color: #334155;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-
-        .rp-faq {
-          display: grid;
-          gap: 12px;
-          margin-top: 34px;
-        }
-
-        .rp-faq details {
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          background: #ffffff;
-          padding: 18px 20px;
-        }
-
-        .rp-faq summary {
-          cursor: pointer;
-          font-weight: 900;
-          color: #0f172a;
-        }
-
-        .rp-faq p {
-          margin: 12px 0 0;
-          color: #64748b;
-          line-height: 1.7;
-        }
-
-        .rp-cta {
-          color: #ffffff;
-          background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #0f766e 100%);
-          text-align: center;
-        }
-
-        .rp-cta .rp-title,
-        .rp-cta .rp-copy {
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .rp-cta .rp-copy {
-          color: #dbeafe;
-        }
-
-        @media (max-width: 900px) {
-          .rp-hero-grid,
-          .rp-split {
-            grid-template-columns: 1fr;
-          }
-
-          .rp-stats,
-          .rp-grid-3 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 560px) {
-          .rp-hero,
-          .rp-section {
-            padding-left: 18px;
-            padding-right: 18px;
-          }
-
-          .rp-actions {
-            flex-direction: column;
-          }
-
-          .rp-stats,
-          .rp-grid-3 {
-            grid-template-columns: 1fr;
-          }
-
-          .rp-table {
-            font-size: 13px;
-          }
-
-          .rp-table th,
-          .rp-table td {
-            padding: 12px;
-          }
-        }
-      `}</style>
-
+    <main className="rp-home-page">
       <JsonLd />
 
-      <section className="rp-hero">
-        <div className="rp-wrap">
-          <div className="rp-hero-grid">
+      <section className="rp-home-hero">
+        <div className="rp-home-wrap">
+          <div className="rp-home-hero-grid">
             <div>
-              <div className="rp-badge">Clinical reasoning QBank for rehab exam prep</div>
-              <h1>
+              <div className="rp-home-badge">Clinical reasoning QBank for rehab exam prep</div>
+
+              <h1 className="rp-home-hero-title">
                 Master NPTE and board-style rehab questions with{" "}
-                <span className="rp-accent">clinical reasoning</span>
+                <span>clinical reasoning</span>
               </h1>
-              <p className="rp-lead">
+
+              <p className="rp-home-lead">
                 RehabPearls helps PT, OT, and SLP learners prepare with adaptive questions,
                 real patient cases, evidence-based rationales, and focused analytics built
                 for rehabilitation exams.
               </p>
-              <div className="rp-actions">
-                <Link href="/register" className="rp-btn rp-btn-primary">
+
+              <div className="rp-home-actions">
+                <Link href="/register" className="rp-home-btn rp-home-btn-primary">
                   Start free trial
                 </Link>
-                <Link href="/qbank" className="rp-btn rp-btn-outline">
+                <Link href="/qbank" className="rp-home-btn rp-home-btn-secondary">
                   Explore QBank
                 </Link>
               </div>
-              <p className="rp-hero-note">
+
+              <p className="rp-home-note">
                 No credit card required. Built for NPTE, PT, OT, SLP, and clinical practice.
               </p>
             </div>
 
-            <div className="rp-panel" aria-label="Sample RehabPearls question">
-              <div className="rp-panel-head">
+            <div className="rp-home-panel" aria-label="Sample RehabPearls question">
+              <div className="rp-home-panel-head">
                 <span>Sample clinical question</span>
                 <span>Neuro rehab</span>
               </div>
-              <div className="rp-question">
+
+              <div className="rp-home-question">
                 <p>
                   A patient post left CVA has right-sided weakness, impaired selective motor
                   control, and difficulty with sit-to-stand. Which intervention best supports
                   functional motor recovery?
                 </p>
-                <div className="rp-options">
-                  <div className="rp-option">Passive range of motion only</div>
-                  <div className="rp-option correct">Task-specific repetitive practice</div>
-                  <div className="rp-option">Long-term immobilization</div>
-                  <div className="rp-option">Avoidance of weight bearing</div>
+
+                <div className="rp-home-options">
+                  <div className="rp-home-option">Passive range of motion only</div>
+                  <div className="rp-home-option is-correct">Task-specific repetitive practice</div>
+                  <div className="rp-home-option">Long-term immobilization</div>
+                  <div className="rp-home-option">Avoidance of weight bearing</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rp-stats">
-            <div className="rp-stat">
-              <strong>4,000+</strong>
-              <span>Board-style questions</span>
-            </div>
-            <div className="rp-stat">
-              <strong>150+</strong>
-              <span>Clinical case scenarios</span>
-            </div>
-            <div className="rp-stat">
-              <strong>92%</strong>
-              <span>Reported first-time pass rate</span>
-            </div>
-            <div className="rp-stat">
-              <strong>24/7</strong>
-              <span>Self-paced study access</span>
-            </div>
+          <div className="rp-home-stats">
+            <div><strong>4,000+</strong><span>Board-style questions</span></div>
+            <div><strong>150+</strong><span>Clinical case scenarios</span></div>
+            <div><strong>92%</strong><span>Reported first-time pass rate</span></div>
+            <div><strong>24/7</strong><span>Self-paced study access</span></div>
           </div>
         </div>
       </section>
 
-      <section className="rp-section">
-        <div className="rp-wrap">
-          <p className="rp-kicker">Why learners choose RehabPearls</p>
-          <h2 className="rp-title">A stronger way to study than memorizing random questions</h2>
-          <p className="rp-copy">
+      <section className="rp-home-section">
+        <div className="rp-home-wrap">
+          <p className="rp-home-kicker">Why learners choose RehabPearls</p>
+          <h2 className="rp-home-title">A stronger way to study than memorizing random questions</h2>
+          <p className="rp-home-copy">
             RehabPearls is built around the way clinicians actually think: identify the
             problem, choose the safest intervention, justify the answer, and understand why
             the alternatives are less appropriate.
           </p>
 
-          <div className="rp-grid-3">
-            {features.map((feature) => (
-              <article className="rp-card" key={feature.title}>
-                <h3>{feature.title}</h3>
-                <p>{feature.text}</p>
+          <div className="rp-home-card-grid">
+            {features.map(([title, text]) => (
+              <article className="rp-home-card" key={title}>
+                <h3>{title}</h3>
+                <p>{text}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="rp-section rp-band">
-        <div className="rp-wrap rp-split">
+      <section className="rp-home-section rp-home-soft">
+        <div className="rp-home-wrap rp-home-split">
           <div>
-            <p className="rp-kicker">Coverage</p>
-            <h2 className="rp-title">Rehab topics organized for exam readiness</h2>
-            <p className="rp-copy">
+            <p className="rp-home-kicker">Coverage</p>
+            <h2 className="rp-home-title">Rehab topics organized for exam readiness</h2>
+            <p className="rp-home-copy">
               Study across high-yield rehabilitation domains with focused practice for
               board exams, clinical rotations, and real-world decision making.
             </p>
-            <div className="rp-specialties">
+
+            <div className="rp-home-pills">
               {specialties.map((item) => (
-                <span className="rp-pill" key={item}>
-                  {item}
-                </span>
+                <span key={item}>{item}</span>
               ))}
             </div>
           </div>
 
-          <table className="rp-table">
+          <table className="rp-home-table">
             <thead>
               <tr>
                 <th>Feature</th>
@@ -700,17 +282,16 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="rp-section">
-        <div className="rp-wrap">
-          <p className="rp-kicker">AI search and Google-ready answers</p>
-          <h2 className="rp-title">Clear answers for learners searching before they buy</h2>
-          <p className="rp-copy">
+      <section className="rp-home-section">
+        <div className="rp-home-wrap">
+          <p className="rp-home-kicker">Google and AI-ready answers</p>
+          <h2 className="rp-home-title">Clear answers for learners searching before they buy</h2>
+          <p className="rp-home-copy">
             RehabPearls explains what the platform does, who it is for, what exams it
-            supports, and how it improves clinical reasoning. That structure helps users,
-            Google, and AI answer engines understand the product quickly.
+            supports, and how it improves clinical reasoning.
           </p>
 
-          <div className="rp-faq">
+          <div className="rp-home-faq">
             {faqs.map((faq) => (
               <details key={faq.q}>
                 <summary>{faq.q}</summary>
@@ -721,18 +302,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="rp-section rp-cta">
-        <div className="rp-wrap">
-          <h2 className="rp-title">Ready to practice with purpose?</h2>
-          <p className="rp-copy">
+      <section className="rp-home-section rp-home-cta">
+        <div className="rp-home-wrap">
+          <h2 className="rp-home-title">Ready to practice with purpose?</h2>
+          <p className="rp-home-copy">
             Start with board-style questions, clinical explanations, and rehab-focused
             review that helps learners build confidence before exam day.
           </p>
-          <div className="rp-actions" style={{ justifyContent: "center" }}>
-            <Link href="/register" className="rp-btn rp-btn-primary">
+
+          <div className="rp-home-actions center">
+            <Link href="/register" className="rp-home-btn rp-home-btn-primary">
               Start free trial
             </Link>
-            <Link href="/pricing" className="rp-btn rp-btn-outline">
+            <Link href="/pricing" className="rp-home-btn rp-home-btn-light">
               View pricing
             </Link>
           </div>

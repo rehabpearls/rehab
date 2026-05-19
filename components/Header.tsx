@@ -1,680 +1,579 @@
 "use client"
- 
-import Link from "next/link"
-import { useEffect, useState, useRef } from "react"
-import { usePathname, useRouter } from "next/navigation"
+
 import { createBrowserClient } from "@supabase/ssr"
- 
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
+
 const supabase = createBrowserClient(
   process.env["NEXT_PUBLIC_SUPABASE_URL"]!,
   process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"]!
 )
- 
+
+const navLinks = [
+  { href: "/qbank", label: "QBank" },
+  { href: "/cases", label: "Clinical Cases" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/about", label: "About" },
+]
+
 export default function Header() {
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropOpen, setDropOpen] = useState(false)
+
   const pathname = usePathname()
   const router = useRouter()
   const dropRef = useRef<HTMLDivElement>(null)
- 
+
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    async function loadProfile(userId: string) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, role, profession")
+        .eq("id", userId)
+        .single()
+
+      setProfile(data)
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+
       if (session?.user) {
-        const { data } = await supabase.from("profiles")
-          .select("full_name, role, profession").eq("id", session.user.id).single()
-        setProfile(data)
+        loadProfile(session.user.id)
       }
     })
- 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_e, session) => {
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+
       if (session?.user) {
-        const { data } = await supabase.from("profiles")
-          .select("full_name, role, profession").eq("id", session.user.id).single()
-        setProfile(data)
+        loadProfile(session.user.id)
       } else {
         setProfile(null)
       }
     })
- 
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener("scroll", onScroll, { passive: true })
- 
-    const onClickOut = (e: MouseEvent) => {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    const onClickOut = (event: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(event.target as Node)) {
         setDropOpen(false)
       }
     }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
     document.addEventListener("mousedown", onClickOut)
- 
+
     return () => {
       listener.subscription.unsubscribe()
       window.removeEventListener("scroll", onScroll)
       document.removeEventListener("mousedown", onClickOut)
     }
   }, [])
- 
-  const navLinks = [
-    { href: "/qbank", label: "QBank" },
-    { href: "/cases", label: "Clinical Cases" },
-    { href: "/pricing", label: "Pricing" },
-    { href: "/about", label: "About" },
-  ]
- 
+
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
     return pathname === href || pathname.startsWith(`${href}/`)
   }
- 
-  const initial = profile?.full_name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?"
-  const firstName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "User"
- 
+
+  const initial =
+    profile?.full_name?.[0]?.toUpperCase() ??
+    user?.email?.[0]?.toUpperCase() ??
+    "?"
+
+  const firstName =
+    profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "User"
+
   async function handleLogout() {
     await supabase.auth.signOut()
     setDropOpen(false)
+    setMenuOpen(false)
     router.push("/")
   }
- 
+
   return (
     <>
       <style>{`
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap");
- 
-        header {
-          font-family: "Inter", system-ui, sans-serif;
+        .rp-header {
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background: rgba(255, 255, 255, 0.98);
+          border-bottom: 1px solid #e5e7eb;
+          font-family: var(--font-sans), Inter, system-ui, sans-serif;
+          transition: box-shadow 0.2s ease, backdrop-filter 0.2s ease;
         }
- 
-        h3, .header-logo span:first-child {
-          font-family: "Poppins", sans-serif;
+
+        .rp-header.scrolled {
+          box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+          backdrop-filter: blur(12px);
         }
- 
-        @keyframes slideDown { 
-          from { opacity: 0; transform: translateY(-12px) } 
-          to { opacity: 1; transform: translateY(0) }
+
+        .rp-header-inner {
+          max-width: 1280px;
+          height: 76px;
+          margin: 0 auto;
+          padding: 0 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 24px;
         }
- 
-        @keyframes fadeIn { 
-          from { opacity: 0 } 
-          to { opacity: 1 }
-        }
- 
-        @keyframes scaleIn { 
-          from { opacity: 0; transform: scale(0.95) }
-          to { opacity: 1; transform: scale(1) }
-        }
- 
-        .nav-link {
-          position: relative;
-          padding: 8px 14px;
-          font-size: 14px;
-          font-weight: 500;
-          color: #374151;
+
+        .rp-logo {
+          display: inline-flex;
+          align-items: center;
           text-decoration: none;
-          border-radius: 8px;
-          transition: all 0.2s ease;
+          flex-shrink: 0;
         }
- 
-        .nav-link::after {
+
+        .rp-logo img {
+          width: 210px;
+          height: auto;
+          display: block;
+          object-fit: contain;
+        }
+
+        .rp-nav {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          flex: 1;
+        }
+
+        .rp-nav-link {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          min-height: 40px;
+          padding: 0 14px;
+          border-radius: 8px;
+          color: #0f172a;
+          font-size: 15px;
+          font-weight: 650;
+          text-decoration: none;
+          transition: background 0.16s ease, color 0.16s ease;
+        }
+
+        .rp-nav-link:hover {
+          color: #2563eb;
+          background: #eff6ff;
+        }
+
+        .rp-nav-link.active {
+          color: #2563eb;
+          background: #eff6ff;
+          font-weight: 800;
+        }
+
+        .rp-nav-link.active::after {
           content: "";
           position: absolute;
-          bottom: 5px;
           left: 14px;
           right: 14px;
+          bottom: 6px;
           height: 2px;
-          background: linear-gradient(90deg, #3b82f6, #14b8a6);
           border-radius: 999px;
-          opacity: 0;
-          transform: scaleX(0);
-          transform-origin: center;
-          transition: opacity 0.2s ease, transform 0.2s ease;
+          background: linear-gradient(90deg, #2563eb, #14b8a6);
         }
- 
-        .nav-link:hover {
-          color: #3b82f6;
-          background: rgba(59, 130, 246, 0.06);
-        }
- 
-        .nav-link:hover::after,
-        .nav-link.active::after {
-          opacity: 1;
-          transform: scaleX(1);
-        }
- 
-        .nav-link.active {
-          color: #3b82f6;
-          background: rgba(59, 130, 246, 0.08);
-          font-weight: 600;
-        }
- 
-        .avatar-button {
+
+        .rp-header-actions {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 6px 12px 6px 6px;
-          background: white;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 32px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 13px;
-          font-weight: 600;
-          color: #111827;
-        }
- 
-        .avatar-button:hover {
-          background: #f8fafc;
-          border-color: #3b82f6;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-        }
- 
-        .avatar-button.open {
-          background: #f0f9ff;
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
- 
-        .avatar-circle {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #3b82f6, #2563eb);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 12px;
-          font-weight: 700;
           flex-shrink: 0;
         }
- 
-        .dropdown-menu {
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          width: 240px;
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
-          z-index: 100;
-          animation: scaleIn 0.15s ease;
-        }
- 
-        .dropdown-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 14px;
-          border: none;
-          background: none;
-          color: #374151;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          width: 100%;
-          text-align: left;
-          text-decoration: none;
-          transition: all 0.15s ease;
-          border-radius: 8px;
-          margin: 0 8px;
-        }
- 
-        .dropdown-item:hover {
-          background: #f0f9ff;
-          color: #3b82f6;
-        }
- 
-        .dropdown-item.danger:hover {
-          background: #fef2f2;
-          color: #dc2626;
-        }
- 
-        .cta-button {
+
+        .rp-auth-link,
+        .rp-auth-primary {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 10px 18px;
-          font-size: 14px;
-          font-weight: 600;
+          min-height: 42px;
+          padding: 0 16px;
           border-radius: 8px;
+          font-size: 14px;
+          font-weight: 800;
           text-decoration: none;
-          transition: all 0.2s ease;
           white-space: nowrap;
         }
- 
-        .cta-primary {
-          background: linear-gradient(135deg, #3b82f6, #2563eb);
-          color: white;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+
+        .rp-auth-link {
+          color: #0f172a;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
         }
- 
-        .cta-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+
+        .rp-auth-primary {
+          color: #ffffff;
+          background: #2563eb;
+          box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
         }
- 
-        .cta-secondary {
-          background: transparent;
-          color: #374151;
-          border: 1.5px solid #e5e7eb;
+
+        .rp-user-button {
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 5px 13px 5px 5px;
+          border: 1px solid #e2e8f0;
+          border-radius: 999px;
+          background: #ffffff;
+          color: #0f172a;
+          cursor: pointer;
+          font-weight: 800;
         }
- 
-        .cta-secondary:hover {
-          border-color: #3b82f6;
-          color: #3b82f6;
-          background: rgba(59, 130, 246, 0.04);
+
+        .rp-user-button:hover,
+        .rp-user-button.open {
+          border-color: #bfdbfe;
+          background: #f8fbff;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
         }
- 
-        .mobile-menu-button {
-          display: none;
+
+        .rp-avatar {
+          width: 34px;
+          height: 34px;
+          border-radius: 999px;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 40px;
-          height: 40px;
-          background: #f8fafc;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 10px;
+          color: #ffffff;
+          background: #2563eb;
+          font-size: 13px;
+          font-weight: 900;
+          flex-shrink: 0;
+        }
+
+        .rp-dropdown {
+          position: absolute;
+          top: calc(100% + 10px);
+          right: 0;
+          width: 260px;
+          padding: 8px;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          background: #ffffff;
+          box-shadow: 0 20px 55px rgba(15, 23, 42, 0.16);
+          z-index: 100;
+        }
+
+        .rp-dropdown-head {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          padding: 10px;
+          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: 6px;
+        }
+
+        .rp-dropdown-name {
+          margin: 0;
+          color: #0f172a;
+          font-size: 14px;
+          font-weight: 850;
+        }
+
+        .rp-dropdown-sub {
+          margin: 2px 0 0;
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 650;
+        }
+
+        .rp-dropdown-item {
+          width: 100%;
+          min-height: 40px;
+          display: flex;
+          align-items: center;
+          padding: 0 10px;
+          border: 0;
+          border-radius: 8px;
+          background: transparent;
+          color: #334155;
+          font-size: 14px;
+          font-weight: 750;
+          text-align: left;
+          text-decoration: none;
           cursor: pointer;
-          color: #111827;
-          transition: all 0.2s ease;
         }
- 
-        .mobile-menu-button:hover {
-          background: #f0f9ff;
-          border-color: #3b82f6;
+
+        .rp-dropdown-item:hover {
+          background: #eff6ff;
+          color: #2563eb;
         }
- 
-        .mobile-backdrop {
+
+        .rp-dropdown-item.danger:hover {
+          background: #fef2f2;
+          color: #dc2626;
+        }
+
+        .rp-menu-button {
+          display: none;
+          width: 42px;
+          height: 42px;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          background: #ffffff;
+          color: #0f172a;
+          cursor: pointer;
+        }
+
+        .rp-mobile-backdrop {
           display: none;
           position: fixed;
-          inset: 68px 0 0 0;
+          inset: 76px 0 0;
+          z-index: 70;
+          background: rgba(15, 23, 42, 0.28);
+        }
+
+        .rp-mobile-panel {
+          display: none;
+          position: fixed;
+          top: 86px;
+          left: 14px;
+          right: 14px;
           z-index: 80;
-          background: rgba(15, 23, 42, 0.32);
-          backdrop-filter: blur(8px);
-          animation: fadeIn 0.2s ease;
-        }
- 
-        .mobile-menu {
-          display: none;
-          position: fixed;
-          top: 76px;
-          left: 12px;
-          right: 12px;
-          z-index: 90;
-          animation: slideDown 0.25s ease;
-        }
- 
-        .mobile-menu-inner {
-          background: rgba(255, 255, 255, 0.97);
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          border-radius: 16px;
-          box-shadow: 0 20px 64px rgba(15, 23, 42, 0.2);
-          backdrop-filter: blur(12px);
           overflow: hidden;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          background: #ffffff;
+          box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2);
         }
- 
-        @media (max-width: 768px) {
-          nav {
-            display: none !important;
+
+        .rp-mobile-panel.open,
+        .rp-mobile-backdrop.open {
+          display: block;
+        }
+
+        .rp-mobile-links {
+          display: grid;
+          gap: 4px;
+          padding: 10px;
+        }
+
+        .rp-mobile-link {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          min-height: 46px;
+          padding: 0 12px;
+          border-radius: 10px;
+          color: #0f172a;
+          font-size: 15px;
+          font-weight: 800;
+          text-decoration: none;
+        }
+
+        .rp-mobile-link.active {
+          background: #eff6ff;
+          color: #2563eb;
+        }
+
+        .rp-mobile-actions {
+          display: grid;
+          gap: 8px;
+          padding: 12px;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        @media (max-width: 860px) {
+          .rp-header-inner {
+            height: 68px;
+            padding: 0 14px;
           }
- 
-          .mobile-menu-button {
-            display: flex !important;
+
+          .rp-logo img {
+            width: 170px;
           }
- 
-          .mobile-menu.open {
-            display: block !important;
+
+          .rp-nav,
+          .rp-auth-link,
+          .rp-auth-primary,
+          .rp-user-button span {
+            display: none;
           }
- 
-          .mobile-backdrop.open {
-            display: block !important;
+
+          .rp-menu-button {
+            display: inline-flex;
           }
- 
-          header > div {
-            padding: 0 14px !important;
-            height: 68px !important;
-          }
- 
-          .header-logo img {
-            width: 36px !important;
-            height: 36px !important;
-          }
- 
-          .header-logo span:first-child {
-            font-size: 20px !important;
-          }
- 
-          .header-logo span:last-child {
-            font-size: 8px !important;
-          }
- 
-          .cta-secondary {
-            display: none !important;
+        }
+
+        @media (max-width: 420px) {
+          .rp-logo img {
+            width: 148px;
           }
         }
       `}</style>
- 
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          background: scrolled ? "rgba(255, 255, 255, 0.95)" : "white",
-          borderBottom: scrolled ? "1px solid rgba(0, 0, 0, 0.08)" : "1px solid #f0f0f0",
-          backdropFilter: scrolled ? "blur(12px)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(12px)" : "none",
-          boxShadow: scrolled ? "0 2px 24px rgba(0, 0, 0, 0.06)" : "none",
-          transition: "all 0.25s ease",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "0 24px",
-            height: 78,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 24,
-          }}
-        >
-          {/* Logo */}
-          <Link
-            href="/"
-            className="header-logo"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              textDecoration: "none",
-              flexShrink: 0,
-              transition: "transform 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)"
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)"
-            }}
-          >
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-                borderRadius: 10,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: 22,
-                fontWeight: 900,
-                filter: "drop-shadow(0 4px 12px rgba(59, 130, 246, 0.25))",
-              }}
-            >
-              RP
-            </div>
- 
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-              <span
-                style={{
-                  fontSize: 20,
-                  fontWeight: 800,
-                  letterSpacing: "-0.02em",
-                  background: "linear-gradient(135deg, #0f172a 0%, #3b82f6 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                RehabPearls
-              </span>
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  color: "#14b8a6",
-                  marginTop: 2,
-                  textTransform: "uppercase",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Clinical QBank
-              </span>
-            </div>
+
+      <header className={`rp-header${scrolled ? " scrolled" : ""}`}>
+        <div className="rp-header-inner">
+          <Link href="/" className="rp-logo" aria-label="RehabPearls home">
+            <img src="/brand/rehabpearls-logo.png.png" alt="RehabPearls Clinical QBank" />
           </Link>
- 
-          {/* Desktop Navigation */}
-          <nav style={{ display: "flex", alignItems: "center", gap: 4, flex: 1, justifyContent: "center" }}>
+
+          <nav className="rp-nav" aria-label="Primary navigation">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`nav-link${isActive(href) ? " active" : ""}`}
+                className={`rp-nav-link${isActive(href) ? " active" : ""}`}
               >
                 {label}
               </Link>
             ))}
           </nav>
- 
-          {/* Right Section */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+
+          <div className="rp-header-actions">
             {user ? (
               <div ref={dropRef} style={{ position: "relative" }}>
                 <button
-                  onClick={() => setDropOpen(!dropOpen)}
-                  className={`avatar-button ${dropOpen ? "open" : ""}`}
+                  type="button"
+                  className={`rp-user-button${dropOpen ? " open" : ""}`}
+                  onClick={() => setDropOpen((open) => !open)}
+                  aria-expanded={dropOpen}
                 >
-                  <div className="avatar-circle">{initial}</div>
+                  <span className="rp-avatar">{initial}</span>
                   <span>{firstName}</span>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    style={{
-                      transform: dropOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      transition: "transform 0.2s ease",
-                    }}
-                  >
-                    <polyline points="6 9 12 15 18 9" />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="m6 9 6 6 6-6"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </button>
- 
+
                 {dropOpen && (
-                  <div className="dropdown-menu">
-                    <div style={{ padding: "10px 14px 12px", borderBottom: "1px solid #f0f0f0", marginBottom: 6 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                        <div className="avatar-circle" style={{ width: 36, height: 36 }}>{initial}</div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: "#111827", margin: 0 }}>
-                            {profile?.full_name || user?.email?.split("@")[0]}
-                          </p>
-                          <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0 0" }}>
-                            {profile?.profession || "User"}
-                          </p>
-                        </div>
+                  <div className="rp-dropdown">
+                    <div className="rp-dropdown-head">
+                      <span className="rp-avatar">{initial}</span>
+                      <div>
+                        <p className="rp-dropdown-name">
+                          {profile?.full_name || user?.email?.split("@")[0]}
+                        </p>
+                        <p className="rp-dropdown-sub">
+                          {profile?.profession || profile?.role || "Member"}
+                        </p>
                       </div>
                     </div>
- 
-                    <Link href="/dashboard" className="dropdown-item">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="7" height="7" />
-                        <rect x="14" y="3" width="7" height="7" />
-                        <rect x="14" y="14" width="7" height="7" />
-                        <rect x="3" y="14" width="7" height="7" />
-                      </svg>
+
+                    <Link className="rp-dropdown-item" href="/dashboard">
                       Dashboard
                     </Link>
- 
-                    <Link href="/settings" className="dropdown-item">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.98 2.98l4.24 4.24M1 12h6m6 0h6m-1.78-7.22l-4.24 4.24m-2.98 2.98l-4.24 4.24" />
-                      </svg>
-                      Settings
+                    <Link className="rp-dropdown-item" href="/account/subscription">
+                      Subscription
                     </Link>
- 
-                    <div style={{ borderTop: "1px solid #f0f0f0", margin: "6px 8px 0" }}>
-                      <button onClick={handleLogout} className="dropdown-item danger" style={{ marginTop: 6 }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 0h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4m-5-9l9-9m0 0l0 9m0-9l-9 0" />
-                        </svg>
-                        Sign Out
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="rp-dropdown-item danger"
+                      onClick={handleLogout}
+                    >
+                      Sign out
+                    </button>
                   </div>
                 )}
               </div>
             ) : (
               <>
-                <Link href="/login" className="cta-button cta-secondary">
-                  Log In
+                <Link href="/login" className="rp-auth-link">
+                  Log in
                 </Link>
-                <Link href="/register" className="cta-button cta-primary">
-                  Start Free Trial
+                <Link href="/register" className="rp-auth-primary">
+                  Start free trial
                 </Link>
               </>
             )}
- 
-            {/* Mobile Menu Button */}
+
             <button
-              className="mobile-menu-button"
-              onClick={() => setMenuOpen(!menuOpen)}
+              type="button"
+              className="rp-menu-button"
+              onClick={() => setMenuOpen((open) => !open)}
               aria-label="Toggle menu"
+              aria-expanded={menuOpen}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                style={{
-                  transform: menuOpen ? "rotate(90deg)" : "rotate(0deg)",
-                  transition: "transform 0.2s ease",
-                }}
-              >
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth="2.3"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
         </div>
       </header>
- 
-      {/* Mobile Menu */}
-      {menuOpen && <div className="mobile-backdrop open" onClick={() => setMenuOpen(false)} />}
-      <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
-        <div className="mobile-menu-inner">
-          {/* Mobile Menu Header */}
-          <div style={{ padding: "14px 16px", borderBottom: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#111827" }}>Menu</h3>
-              <p style={{ margin: "2px 0 0 0", fontSize: 12, color: "#6b7280", fontWeight: 500 }}>
-                Explore RehabPearls
-              </p>
-            </div>
-            <button
+
+      {menuOpen && (
+        <div
+          className={`rp-mobile-backdrop${menuOpen ? " open" : ""}`}
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
+      <div className={`rp-mobile-panel${menuOpen ? " open" : ""}`}>
+        <div className="rp-mobile-links">
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
               onClick={() => setMenuOpen(false)}
-              style={{
-                width: 32,
-                height: 32,
-                border: 0,
-                borderRadius: 8,
-                background: "#f0f9ff",
-                color: "#3b82f6",
-                fontSize: 20,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
+              className={`rp-mobile-link${isActive(href) ? " active" : ""}`}
             >
-              ✕
-            </button>
-          </div>
- 
-          {/* Mobile Menu Links */}
-          <div style={{ padding: "8px" }}>
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 14px",
-                  borderRadius: 10,
-                  color: isActive(href) ? "#3b82f6" : "#1f2937",
-                  fontWeight: isActive(href) ? 700 : 600,
-                  fontSize: 14,
-                  textDecoration: "none",
-                  background: isActive(href) ? "rgba(59, 130, 246, 0.08)" : "transparent",
-                  transition: "all 0.2s ease",
-                  border: isActive(href) ? "1px solid rgba(59, 130, 246, 0.2)" : "1px solid transparent",
-                }}
-              >
-                {label}
-                {isActive(href) && <span style={{ color: "#3b82f6", fontSize: 16 }}>→</span>}
-              </Link>
-            ))}
-          </div>
- 
-          {/* Mobile Menu Actions */}
+              {label}
+              {isActive(href) && <span>→</span>}
+            </Link>
+          ))}
+        </div>
+
+        <div className="rp-mobile-actions">
           {user ? (
-            <div style={{ display: "grid", gap: 8, padding: "12px 16px", borderTop: "1px solid #f0f0f0" }}>
+            <>
               <Link
                 href="/dashboard"
                 onClick={() => setMenuOpen(false)}
-                className="cta-button cta-primary"
-                style={{ width: "100%", textAlign: "center" }}
+                className="rp-auth-primary"
               >
-                Open Dashboard
+                Dashboard
               </Link>
               <button
+                type="button"
                 onClick={handleLogout}
-                className="cta-button cta-secondary"
-                style={{ width: "100%", textAlign: "center", color: "#dc2626", borderColor: "#fecaca" }}
+                className="rp-auth-link"
+                style={{ width: "100%" }}
               >
-                Sign Out
+                Sign out
               </button>
-            </div>
+            </>
           ) : (
-            <div style={{ display: "grid", gap: 8, padding: "12px 16px", borderTop: "1px solid #f0f0f0" }}>
+            <>
               <Link
                 href="/register"
                 onClick={() => setMenuOpen(false)}
-                className="cta-button cta-primary"
-                style={{ width: "100%", textAlign: "center" }}
+                className="rp-auth-primary"
               >
-                Start Free Trial
+                Start free trial
               </Link>
               <Link
                 href="/login"
                 onClick={() => setMenuOpen(false)}
-                className="cta-button cta-secondary"
-                style={{ width: "100%", textAlign: "center" }}
+                className="rp-auth-link"
               >
-                Log In
+                Log in
               </Link>
-            </div>
+            </>
           )}
         </div>
       </div>
     </>
   )
 }
- 
-
