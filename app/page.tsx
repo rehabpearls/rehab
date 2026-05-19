@@ -198,182 +198,119 @@ export default function Home() {
         }
 
         .rp-hero {
-          position: relative;
-          overflow: hidden;
-          padding: 104px 24px 84px;
-          color: #ffffff;
-          background:
-            radial-gradient(circle at 18% 20%, rgba(20, 184, 166, 0.24), transparent 34%),
-            radial-gradient(circle at 82% 16%, rgba(59, 130, 246, 0.28), transparent 32%),
-            linear-gradient(135deg, #07111f 0%, #10233f 46%, #0f766e 100%);
-        }
+  position: relative;
+  overflow: hidden;
+  padding: 96px 24px 78px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(20, 184, 166, 0.22), transparent 30%),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 46%, #e9fbf7 100%);
+}
 
-        .rp-hero-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
-          gap: 56px;
-          align-items: center;
-        }
+.rp-hero h1 {
+  margin: 0;
+  max-width: 780px;
+  color: #0f172a;
+  font-size: clamp(46px, 6.2vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+}
 
-        .rp-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 12px;
-          margin-bottom: 22px;
-          border: 1px solid rgba(255, 255, 255, 0.22);
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.1);
-          color: #dbeafe;
-          font-size: 13px;
-          font-weight: 800;
-        }
+.rp-accent {
+  color: #0f766e;
+}
 
-        .rp-hero h1 {
-          margin: 0;
-          font-size: clamp(44px, 6.5vw, 78px);
-          line-height: 0.98;
-          letter-spacing: -0.04em;
-          font-weight: 950;
-        }
+.rp-lead {
+  max-width: 680px;
+  margin: 24px 0 0;
+  color: #334155;
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 500;
+}
 
-        .rp-accent {
-          color: #67e8f9;
-        }
+.rp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  margin-bottom: 22px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 13px;
+  font-weight: 850;
+}
 
-        .rp-lead {
-          max-width: 670px;
-          margin: 24px 0 0;
-          color: #dbeafe;
-          font-size: 20px;
-          line-height: 1.65;
-        }
+.rp-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
+}
 
-        .rp-actions {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 14px;
-          margin-top: 34px;
-        }
+.rp-btn-outline {
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  background: #ffffff;
+}
 
-        .rp-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 52px;
-          padding: 0 24px;
-          border-radius: 8px;
-          font-weight: 850;
-          text-decoration: none;
-          transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-        }
+.rp-hero-note {
+  margin-top: 18px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+}
 
-        .rp-btn:hover {
-          transform: translateY(-2px);
-        }
+.rp-panel {
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
 
-        .rp-btn-primary {
-          background: #ffffff;
-          color: #0f172a;
-          box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
-        }
+.rp-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #173b66;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 850;
+}
 
-        .rp-btn-dark {
-          background: #0f172a;
-          color: #ffffff;
-        }
+.rp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 54px;
+}
 
-        .rp-btn-outline {
-          border: 1px solid rgba(255, 255, 255, 0.35);
-          color: #ffffff;
-          background: rgba(255, 255, 255, 0.1);
-        }
+.rp-stat {
+  padding: 20px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
 
-        .rp-hero-note {
-          margin-top: 18px;
-          color: #bfdbfe;
-          font-size: 14px;
-          font-weight: 700;
-        }
+.rp-stat strong {
+  display: block;
+  font-size: 31px;
+  line-height: 1;
+  color: #0f172a;
+}
 
-        .rp-panel {
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
-          overflow: hidden;
-        }
-
-        .rp-panel-head {
-          display: flex;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 18px 20px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.13);
-          color: #dbeafe;
-          font-size: 13px;
-          font-weight: 850;
-        }
-
-        .rp-question {
-          padding: 24px;
-          background: rgba(255, 255, 255, 0.96);
-          color: #111827;
-        }
-
-        .rp-question p {
-          margin: 0 0 18px;
-          line-height: 1.6;
-          font-weight: 750;
-        }
-
-        .rp-options {
-          display: grid;
-          gap: 10px;
-        }
-
-        .rp-option {
-          padding: 13px 14px;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          background: #ffffff;
-          font-size: 14px;
-          font-weight: 650;
-        }
-
-        .rp-option.correct {
-          border-color: #14b8a6;
-          background: #ecfdf5;
-          color: #065f46;
-        }
-
-        .rp-stats {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 14px;
-          margin-top: 54px;
-        }
-
-        .rp-stat {
-          padding: 20px;
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.14);
-        }
-
-        .rp-stat strong {
-          display: block;
-          font-size: 31px;
-          line-height: 1;
-        }
-
-        .rp-stat span {
-          display: block;
-          margin-top: 8px;
-          color: #cbd5e1;
-          font-size: 13px;
-          font-weight: 700;
-        }
+.rp-stat span {
+  display: block;
+  margin-top: 8px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 750;
+}
 
         .rp-kicker {
           margin: 0 0 12px;
