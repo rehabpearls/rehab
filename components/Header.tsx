@@ -136,7 +136,40 @@ export default function Header() {
           display: block;
           object-fit: contain;
         }
+.rp-logo-mark {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  display: block;
+}
+  .rp-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
 
+.rp-logo-text strong {
+  display: block;
+  color: #173b66;
+  font-size: 23px;
+  font-weight: 950;
+  letter-spacing: -0.045em;
+}
+
+.rp-logo-text strong span {
+  color: #2563eb;
+}
+
+.rp-logo-text em {
+  display: block;
+  margin-top: 5px;
+  color: #0f766e;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
         .rp-nav {
           display: flex;
           align-items: center;
@@ -414,9 +447,20 @@ export default function Header() {
 
       <header className={`rp-header${scrolled ? " scrolled" : ""}`}>
         <div className="rp-header-inner">
-          <Link href="/" className="rp-logo" aria-label="RehabPearls home">
-            <img src="/brand/rehabpearls-logo.png.png" alt="RehabPearls Clinical QBank" />
-          </Link>
+         <Link href="/" className="rp-logo" aria-label="RehabPearls home">
+  <img
+    src="/brand/rehabpearls-logo.png.png"
+    alt=""
+    className="rp-logo-mark"
+  />
+
+  <span className="rp-logo-text">
+    <strong>
+      Rehab<span>Pearls</span>
+    </strong>
+    <em>Clinical QBank</em>
+  </span>
+</Link>
 
           <nav className="rp-nav" aria-label="Primary navigation">
             {navLinks.map(({ href, label }) => (

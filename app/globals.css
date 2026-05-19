@@ -744,17 +744,18 @@ header a {
   text-decoration: none;
 }
 
-.header-logo img,
-.rp-logo img {
-  width: auto !important;
-  max-width: 210px !important;
-  max-height: 54px !important;
+.rp-logo-mark {
+  width: 46px !important;
+  height: 46px !important;
+  max-width: 46px !important;
+  max-height: 46px !important;
   object-fit: contain !important;
 }
 
-header img[src*="rehabpearls-logo"] {
+.header-logo img {
   max-height: 54px !important;
   width: auto !important;
+  object-fit: contain !important;
 }
 
 /* =========================================================
