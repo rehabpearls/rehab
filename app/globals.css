@@ -706,3 +706,289 @@ select:focus {
     color: #000000 !important;
   }
 }
+/* =========================================================
+   Homepage full styling
+   ========================================================= */
+
+.rp-home {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.rp-wrap {
+  width: min(1180px, calc(100% - 48px));
+  margin-inline: auto;
+}
+
+.rp-section {
+  padding: 88px 24px;
+}
+
+.rp-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 92px 24px 76px;
+  color: #0f172a !important;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(20, 184, 166, 0.18), transparent 32%),
+    radial-gradient(circle at 12% 88%, rgba(37, 99, 235, 0.1), transparent 30%),
+    linear-gradient(135deg, #f8fbff 0%, #eef7ff 48%, #eafbf7 100%);
+}
+
+.rp-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  gap: 56px;
+  align-items: center;
+}
+
+.rp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 13px;
+  margin-bottom: 22px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e3a8a !important;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.rp-hero h1 {
+  margin: 0;
+  max-width: 800px;
+  color: #07111f !important;
+  font-size: clamp(46px, 6.1vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+}
+
+.rp-accent {
+  color: #0f766e !important;
+}
+
+.rp-lead {
+  max-width: 690px;
+  margin: 24px 0 0;
+  color: #334155 !important;
+  font-size: 20px;
+  line-height: 1.7;
+  font-weight: 520;
+}
+
+.rp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.rp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.rp-btn-primary {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
+}
+
+.rp-btn-outline {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.rp-hero-note {
+  margin: 18px 0 0;
+  color: #475569 !important;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.rp-panel {
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.rp-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: #173b66;
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.rp-panel-head span {
+  color: #ffffff !important;
+}
+
+.rp-question {
+  padding: 28px;
+  background: #ffffff;
+  color: #0f172a !important;
+}
+
+.rp-question p {
+  margin: 0 0 18px;
+  color: #0f172a !important;
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 850;
+}
+
+.rp-options {
+  display: grid;
+  gap: 12px;
+}
+
+.rp-option {
+  padding: 14px 16px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #ffffff !important;
+  color: #111827 !important;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.rp-option.correct {
+  border-color: #14b8a6;
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+}
+
+.rp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 54px;
+}
+
+.rp-stat {
+  padding: 20px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.rp-stat strong {
+  display: block;
+  color: #0f172a !important;
+  font-size: 31px;
+  line-height: 1;
+}
+
+.rp-stat span {
+  display: block;
+  margin-top: 8px;
+  color: #475569 !important;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.rp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 42px;
+}
+
+.rp-card {
+  padding: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.rp-card h3 {
+  margin: 0;
+  color: #0f172a !important;
+  font-size: 20px;
+}
+
+.rp-card p {
+  margin: 12px 0 0;
+  color: #64748b !important;
+  line-height: 1.65;
+}
+
+.rp-cta .rp-title {
+  color: #ffffff !important;
+}
+
+.rp-cta .rp-copy {
+  color: #dbeafe !important;
+}
+
+/* Header logo safety */
+.rp-logo img,
+.header-logo img {
+  width: auto !important;
+  max-width: 210px !important;
+  max-height: 54px !important;
+  object-fit: contain !important;
+}
+
+/* If logo file is just an icon, do not let it explode */
+header img[src*="rehabpearls-logo"] {
+  max-height: 54px !important;
+  width: auto !important;
+}
+
+@media (max-width: 900px) {
+  .rp-hero-grid,
+  .rp-split {
+    grid-template-columns: 1fr;
+  }
+
+  .rp-stats,
+  .rp-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .rp-wrap {
+    width: min(100% - 28px, 100%);
+  }
+
+  .rp-hero,
+  .rp-section {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .rp-hero {
+    padding-top: 64px;
+  }
+
+  .rp-actions {
+    flex-direction: column;
+  }
+
+  .rp-stats,
+  .rp-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
