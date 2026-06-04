@@ -1,174 +1,278 @@
-import Head from "next/head"
 import Link from "next/link"
+import {
+  FaBone,
+  FaBrain,
+  FaChild,
+  FaRunning,
+  FaUserMd,
+  FaChartLine,
+  FaClipboardCheck,
+} from "react-icons/fa"
 
 export const metadata = {
-  title: "Clinical Cases — RehabPearls",
+  title: "Clinical Cases | RehabPearls",
   description:
-    "RehabPearls Clinical Cases module provides real-world scenarios to enhance your clinical reasoning and decision making.",
+    "Practice realistic rehabilitation clinical cases designed to improve clinical reasoning, patient assessment, and decision-making skills.",
+  keywords: [
+    "clinical cases",
+    "rehabilitation cases",
+    "physical therapy case studies",
+    "clinical reasoning",
+    "rehab education",
+  ],
+  alternates: {
+    canonical: "https://rehabpearls.com/cases",
+  },
 }
+
+const categories = [
+  {
+    href: "/cases/orthopedic",
+    icon: FaBone,
+    title: "Orthopedic",
+    description:
+      "Musculoskeletal injuries, fractures, post-operative rehab, joint dysfunction and return-to-function planning.",
+    count: "90+ Cases",
+  },
+  {
+    href: "/cases/neuro",
+    icon: FaBrain,
+    title: "Neurological",
+    description:
+      "Stroke, spinal cord injury, TBI, movement disorders and neurorehabilitation decision making.",
+    count: "70+ Cases",
+  },
+  {
+    href: "/cases/pediatrics",
+    icon: FaChild,
+    title: "Pediatric",
+    description:
+      "Developmental delays, cerebral palsy, pediatric neurology and functional rehabilitation planning.",
+    count: "50+ Cases",
+  },
+  {
+    href: "/cases/sports",
+    icon: FaRunning,
+    title: "Sports",
+    description:
+      "ACL rehab, return-to-play decisions, athletic injuries and sports performance optimization.",
+    count: "40+ Cases",
+  },
+]
 
 export default function CasesPage() {
   return (
-    <>
-      <Head>
-        {/* Breadcrumb Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                {
-                  "@type": "ListItem",
-                  position: 1,
-                  name: "Home",
-                  item: "https://rehabpearls.com",
-                },
-                {
-                  "@type": "ListItem",
-                  position: 2,
-                  name: "Clinical Cases",
-                  item: "https://rehabpearls.com/cases",
-                },
-              ],
-            }),
-          }}
-        />
-      </Head>
+    <main className="min-h-screen bg-gray-50 text-gray-900">
 
-      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white text-gray-900">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Clinical Cases",
+            description:
+              "Clinical rehabilitation case simulations for exam preparation and clinical reasoning development.",
+            url: "https://rehabpearls.com/cases",
+          }),
+        }}
+      />
 
-        {/* HERO */}
-        <section className="bg-indigo-700 text-white py-20 px-6">
-          <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-5xl font-extrabold mb-6">
-              Clinical Cases
-            </h1>
-            <p className="text-lg text-indigo-100 max-w-3xl mx-auto">
-              Dive into realistic clinical rehabilitation scenarios designed to
-              sharpen your diagnostic reasoning, improve decision-making, and
-              connect theoretical knowledge with practical application.
+      {/* HERO */}
+      <section className="max-w-5xl mx-auto px-6 pt-24 pb-16 text-center">
+
+        <div className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 mb-8">
+          Clinical Reasoning Platform
+        </div>
+
+        <h1 className="text-5xl md:text-6xl font-extrabold text-indigo-700 leading-tight">
+          Clinical Cases
+        </h1>
+
+        <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+          Strengthen clinical reasoning through realistic rehabilitation case
+          scenarios designed to simulate real patient encounters and exam-style
+          decision making.
+        </p>
+      </section>
+
+      {/* STATS */}
+      <section className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="grid md:grid-cols-4 gap-6">
+
+          <div className="bg-white rounded-3xl p-8 shadow-lg text-center">
+            <div className="text-4xl font-bold text-indigo-600">250+</div>
+            <div className="text-gray-600 mt-2">Clinical Cases</div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-8 shadow-lg text-center">
+            <div className="text-4xl font-bold text-indigo-600">4</div>
+            <div className="text-gray-600 mt-2">Specialties</div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-8 shadow-lg text-center">
+            <div className="text-4xl font-bold text-indigo-600">100%</div>
+            <div className="text-gray-600 mt-2">Exam Relevant</div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-8 shadow-lg text-center">
+            <div className="text-4xl font-bold text-indigo-600">Expert</div>
+            <div className="text-gray-600 mt-2">Peer Reviewed</div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* CASE CATEGORIES */}
+      <section className="max-w-7xl mx-auto px-6 pb-24">
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+
+          {categories.map((category) => {
+            const Icon = category.icon
+
+            return (
+              <Link
+                key={category.href}
+                href={category.href}
+                className="
+                  group
+                  bg-white
+                  rounded-3xl
+                  p-8
+                  shadow-lg
+                  hover:shadow-2xl
+                  hover:-translate-y-2
+                  transition-all
+                  duration-300
+                "
+              >
+                <div className="flex flex-col items-center text-center">
+
+                  <Icon
+                    className="
+                      text-indigo-600
+                      text-5xl
+                      mb-6
+                      group-hover:scale-110
+                      transition-transform
+                    "
+                  />
+
+                  <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                    {category.title}
+                  </h2>
+
+                  <p className="text-gray-600 mb-5">
+                    {category.description}
+                  </p>
+
+                  <span className="text-sm font-semibold text-indigo-600">
+                    {category.count}
+                  </span>
+
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* WHY CLINICAL CASES */}
+      <section className="bg-white py-24">
+        <div className="max-w-6xl mx-auto px-6">
+
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+              Why Practice Clinical Cases?
+            </h2>
+
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Move beyond memorization and develop the clinical reasoning
+              skills required in real-world rehabilitation practice.
             </p>
           </div>
-        </section>
 
-        {/* STATS BAR */}
-        <section className="bg-white shadow-sm py-6 border-b">
-          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 text-center gap-6">
-            <div>
-              <p className="text-3xl font-bold text-indigo-600">250+</p>
-              <p className="text-sm text-gray-600">Clinical Cases</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-indigo-600">4</p>
-              <p className="text-sm text-gray-600">Specialties</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-indigo-600">Expert</p>
-              <p className="text-sm text-gray-600">Peer Reviewed</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-indigo-600">100%</p>
-              <p className="text-sm text-gray-600">Exam Relevant</p>
-            </div>
-          </div>
-        </section>
+          <div className="grid md:grid-cols-3 gap-10">
 
-        {/* CATEGORY GRID */}
-        <section className="max-w-6xl mx-auto py-16 px-6">
-
-          <div className="grid gap-8 md:grid-cols-2">
-
-            {/* ORTHOPEDIC */}
-            <Link
-              href="/cases/orthopedic"
-              className="group border rounded-2xl p-8 bg-white shadow-sm hover:shadow-xl transition"
-            >
-              <h2 className="text-2xl font-bold mb-3 group-hover:text-indigo-600 transition">
-                Orthopedic Rehab Cases
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Musculoskeletal injuries, post-surgical rehabilitation,
-                fractures, joint dysfunction and return-to-function protocols.
+            <div className="bg-gray-50 rounded-3xl p-8">
+              <FaUserMd className="text-indigo-600 text-4xl mb-4" />
+              <h3 className="font-bold text-xl mb-3">
+                Realistic Patient Scenarios
+              </h3>
+              <p className="text-gray-600">
+                Experience authentic rehabilitation cases based on clinical
+                practice and exam standards.
               </p>
-              <div className="text-sm text-gray-500">
-                90+ cases • Beginner → Advanced
-              </div>
-            </Link>
+            </div>
 
-            {/* NEURO */}
-            <Link
-              href="/cases/neuro"
-              className="group border rounded-2xl p-8 bg-white shadow-sm hover:shadow-xl transition"
-            >
-              <h2 className="text-2xl font-bold mb-3 group-hover:text-indigo-600 transition">
-                Neuro Rehab Cases
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Stroke rehabilitation, traumatic brain injury, spinal cord
-                injury, movement disorders and neuroplastic recovery.
+            <div className="bg-gray-50 rounded-3xl p-8">
+              <FaClipboardCheck className="text-indigo-600 text-4xl mb-4" />
+              <h3 className="font-bold text-xl mb-3">
+                Clinical Decision Making
+              </h3>
+              <p className="text-gray-600">
+                Improve assessment, diagnosis and intervention planning through
+                guided reasoning exercises.
               </p>
-              <div className="text-sm text-gray-500">
-                70+ cases • Moderate → Expert
-              </div>
-            </Link>
+            </div>
 
-            {/* PEDIATRICS */}
-            <Link
-              href="/cases/pediatrics"
-              className="group border rounded-2xl p-8 bg-white shadow-sm hover:shadow-xl transition"
-            >
-              <h2 className="text-2xl font-bold mb-3 group-hover:text-indigo-600 transition">
-                Pediatric Rehab Cases
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Developmental delay, cerebral palsy, neuromuscular disorders
-                and pediatric functional rehabilitation planning.
+            <div className="bg-gray-50 rounded-3xl p-8">
+              <FaChartLine className="text-indigo-600 text-4xl mb-4" />
+              <h3 className="font-bold text-xl mb-3">
+                Exam Performance
+              </h3>
+              <p className="text-gray-600">
+                Build confidence for certification and board examinations with
+                clinically relevant scenarios.
               </p>
-              <div className="text-sm text-gray-500">
-                50+ cases • Clinical Focused
-              </div>
-            </Link>
-
-            {/* SPORTS */}
-            <Link
-              href="/cases/sports"
-              className="group border rounded-2xl p-8 bg-white shadow-sm hover:shadow-xl transition"
-            >
-              <h2 className="text-2xl font-bold mb-3 group-hover:text-indigo-600 transition">
-                Sports Rehab Cases
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Athletic injuries, ACL rehab, return-to-play criteria,
-                performance optimization and injury prevention.
-              </p>
-              <div className="text-sm text-gray-500">
-                40+ cases • Performance Oriented
-              </div>
-            </Link>
+            </div>
 
           </div>
+        </div>
+      </section>
 
-          {/* CTA */}
-          <div className="text-center mt-16">
+      {/* CTA */}
+      <section className="py-24">
+        <div className="max-w-4xl mx-auto px-6">
+
+          <div className="bg-white rounded-[32px] shadow-xl p-12 text-center">
+
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+              Ready To Start Practicing?
+            </h2>
+
+            <p className="text-lg text-gray-600 mb-8">
+              Access hundreds of rehabilitation case studies and improve your
+              clinical reasoning today.
+            </p>
+
             <Link
               href="/register"
-              className="inline-block bg-indigo-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition shadow-md"
+              className="
+                inline-flex
+                items-center
+                justify-center
+                px-10
+                py-4
+                rounded-2xl
+                bg-indigo-600
+                text-white
+                font-semibold
+                text-lg
+                hover:bg-indigo-700
+                transition
+              "
             >
               Start Clinical Case Practice
             </Link>
-            <p className="text-gray-500 mt-4 text-sm">
-              Already registered?{" "}
-              <Link href="/login" className="text-indigo-600 hover:underline">
-                Log in to continue
-              </Link>
-            </p>
+
           </div>
+        </div>
+      </section>
 
-        </section>
-
-      </main>
-    </>
+    </main>
   )
 }
