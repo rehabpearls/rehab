@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { DM_Mono, DM_Sans } from "next/font/google"
 import Script from "next/script"
-import ConditionalShell from "@/components/ConditionalShell"
+import ConditionalShell from "@/components/common/ConditionalShell"
 import "./globals.css"
 
 const dmSans = DM_Sans({

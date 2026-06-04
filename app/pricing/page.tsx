@@ -29,11 +29,11 @@ const plans: Plan[] = [
   },
   {
     name: "Monthly",
-    price: "$29",
+    price: "$49",
     description: "Most popular option for active learners.",
     popular: true,
     features: [
-      "Unlimited QBank Access",
+      "Limited QBank Access",
       "Full Clinical Cases Library",
       "Performance Analytics",
       "Progress Tracking",
@@ -212,7 +212,7 @@ export default function PricingPage() {
 
             <Link
               href="/register"
-              className="inline-flex px-10 py-4 rounded-2xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
+              className="inline-flex px-10 py-4 rounded-3xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
             >
               Start Now
             </Link>

@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import AdminUsersTab from "@/components/AdminUsersTab"
-import AIImportTool from "@/components/AIImportTool"
-import AdminBlocksTab from "@/components/AdminBlocksTab"
+import AdminUsersTab from "@/components/admin/AdminUsersTab"
+import AIImportTool from "@/components/admin/AIImportTool"
+import AdminBlocksTab from "@/components/admin/AdminBlocksTab"
 import { createBrowserClient } from "@supabase/ssr"
 
 const supabase = createBrowserClient(

@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { Metadata } from "next"
-import BlockCard from "@/components/BlockCard"
+import BlockCard from "@/components/blocks/BlockCard"
 
 export const dynamic = "force-dynamic"
 

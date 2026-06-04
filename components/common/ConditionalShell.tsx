@@ -1,9 +1,9 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import LeadPopup from "@/components/LeadPopup"
+import Header from "@/components/layout/Navbar"
+import Footer from "@/components/layout/Footer"
+import LeadPopup from "@/components/marketing/LeadPopup"
 
 const NO_HEADER_PATHS = ["/login", "/register", "/auth"]
 const NO_FOOTER_PATHS = ["/login", "/register", "/auth",]
